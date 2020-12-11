@@ -12,15 +12,15 @@
 rm(list = ls(all.names = TRUE))
 
 # Load and/or install packages.
-source("sdm/scripts/helper_functions/load_packages.R")
+source("scripts/helper_functions/load_packages.R")
 
 # Source make_GeodesicBuffer() function
-source("sdm/scripts/helper_functions/make_geodesic_buffer.R")
+source("scripts/helper_functions/make_geodesic_buffer.R")
 
 # Use read.delim(), because it deals with encoding issues (File
 # BGCI_garden_coordinates.csv was edited under Linux and contains characters
 # that Windows does not interpret properly).
-botanical_gardens_orig <- read.delim("sdm/data/botanical_gardens/BGCI_garden_coordinates.csv", 
+botanical_gardens_orig <- read.delim("data/botanical_gardens/BGCI_garden_coordinates.csv", 
                                      stringsAsFactors = FALSE,
                                      strip.white = TRUE,
                                      encoding = "UTF-8")
@@ -63,4 +63,4 @@ botanical_gardens_sp <- make_geodesic_buffer(xy = botanical_gardens_pts,
 
 # Save as binary rds object.
 saveRDS(object = botanical_gardens_sp, 
-        file = "sdm/data/botanical_gardens/buffer/rds/botanical_gardens_buffers.rds")
+        file = "data/botanical_gardens/buffer/rds/botanical_gardens_buffers.rds")

@@ -26,16 +26,16 @@ if ( ! grepl(pattern = "PacificInvaders", x = getwd()) )
 
 # Create path for saving output. "~/winhome/temp/" is for RStudio server.
 save_path <- 
-  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "sdm/output/data-clean/temp/"
+  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "output/data-clean/temp/"
 
 
 # Load and/or install packages.
-source("sdm/scripts/helper_functions/load_packages.R")
+source("scripts/helper_functions/load_packages.R")
 
 
 # Read data ---------------------------------------------------------------
 
-dt_oc_raw <- readRDS(file = "sdm/output/data-clean/temp/occ_gadm.rds")
+dt_oc_raw <- readRDS(file = "output/data-clean/temp/occ_gadm.rds")
 # 1.5-2 minutes
 
 # Take a copy of the occurences object for testing reasons (do this only if you
@@ -290,8 +290,8 @@ sp_rest <- sp_rest[! sp_rest %in% sp_lost]
 # ~ using BGCI ------------------------------------------------------------
 
 # Botanic Gardens Conservation International (BGCI)
-bgci_sp <- readRDS(file = "sdm/data/botanical_gardens/buffer/rds/botanical_gardens_buffers.rds")
-source("sdm/scripts/helper_functions/remove_occ_gardens.R")
+bgci_sp <- readRDS(file = "data/botanical_gardens/buffer/rds/botanical_gardens_buffers.rds")
+source("scripts/helper_functions/remove_occ_gardens.R")
 dt_oc <- remove_occ_gardens(dt = dt_oc, gardens = bgci_sp)
 # 3255972 points inside botanical gardens were discarded
 # Elapsed CPU time: 1-2 min

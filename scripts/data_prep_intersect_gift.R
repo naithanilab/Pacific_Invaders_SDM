@@ -1,6 +1,6 @@
 # /////////////////////////////////////////////////////////////////////////
 #
-# Intersect occurrence data with the GLONAF shapefile.
+# Intersect occurrence data with the GIFT shapefile.
 #
 # This spatial intersection allows the retrieval of the geoentity ID-s for each
 # occurrence. That is useful because these geoentity ID-s can be further used as
@@ -24,19 +24,19 @@ rm(list = ls(all.names = TRUE)); gc()
 # when running the RStudio proj file from "I" drive directly, the following line
 # do not alter the working directory path.
 if ( ! grepl(pattern = "PacificInvaders", x = getwd()) )
-  setwd("/data/sie-group-share/_data_VS/_Proj_share/PacificInvaders")
+  setwd("/data/sie-group-share/10_data_VS/0_proj_share/PacificInvaders")
 
 # Create path for saving output. "~/winhome/temp/" is for RStudio server.
 save_path <- 
-  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "sdm/output/data-clean/temp/"
+  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "output/data-clean/temp/"
 
 
 # Load and/or install packages.
-source("sdm/scripts/helper_functions/load_packages.R")
+source("scripts/helper_functions/load_packages.R")
 
 # Load helper functions for:
 # - running spatial intersection in parallel.
-source("sdm/scripts/helper_functions/over_parallel.R")
+source("scripts/helper_functions/over_parallel.R")
 
 
 # Read data ---------------------------------------------------------------
@@ -46,11 +46,11 @@ dt_oc <- readRDS(file = paste0(save_path, "occ_clean.rds"))
 # ~ 25 sec
 
 # Read geoentities shapefile from Patrick Weigelt
-g_entt <- readRDS(file = "sdm/data/geoentities_2018-05-09/rds/geoentities_2018-05-09.rds")
+g_entt <- readRDS(file = "data/geoentities_2018-05-09/rds/geoentities_2018-05-09.rds")
 # ~ 5 sec
 
 
-# Intersect with GLONAF ---------------------------------------------------
+# Intersect with GIFT -----------------------------------------------------
 
 # Workflow:
 
@@ -103,4 +103,4 @@ setdiff(dt_oc[is.na(entt_ID), spp_binary],
         dt_oc[!is.na(entt_ID), spp_binary])
 # [1] "Portulaca lutea"
 
-saveRDS(object = dt_oc, file = paste0(save_path, "occ_clean_glonaf.rds"))
+saveRDS(object = dt_oc, file = paste0(save_path, "occ_clean_gift.rds"))

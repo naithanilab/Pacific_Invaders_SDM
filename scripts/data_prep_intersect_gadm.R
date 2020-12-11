@@ -32,32 +32,32 @@ rm(list = ls(all.names = TRUE)); gc()
 # when running the RStudio proj file from "I" drive directly, the following line
 # do not alter the working directory path.
 if ( ! grepl(pattern = "PacificInvaders", x = getwd()) )
-  setwd("/data/sie-group-share/_data_VS/_Proj_share/PacificInvaders")
+  setwd("/data/sie-group-share/10_data_VS/0_proj_share/PacificInvaders")
 
 # Create path for saving output. "~/winhome/temp/" is for RStudio server.
 save_path <- 
-  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "sdm/output/data-clean/temp/"
+  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "output/data-clean/temp/"
 # Create also the temp directory.
 if (! dir.exists(file.path(save_path))) dir.create(file.path(save_path))
 
 
 # Load and/or install packages.
-source("sdm/scripts/helper_functions/load_packages.R")
+source("scripts/helper_functions/load_packages.R")
 
 # Load helper functions for:
 # - running spatial intersection in parallel.
-source("sdm/scripts/helper_functions/over_parallel.R")
+source("scripts/helper_functions/over_parallel.R")
 # - geodesic buffer
-source("sdm/scripts/helper_functions/make_geodesic_buffer.R")
+source("scripts/helper_functions/make_geodesic_buffer.R")
 # - closest polygon within buffer distance
-source("sdm/scripts/helper_functions/closest_within_dist.R")
+source("scripts/helper_functions/closest_within_dist.R")
 
 
 # Read data ---------------------------------------------------------------
 
-load(file = "sdm/data/PacAlienSpp_GBIFBIEN_occurrences_Aug2018.RData")
+load(file = "data/PacAlienSpp_GBIFBIEN_occurrences_Aug2018.RData")
 setDT(gbif_bien_occ)
-gadm <- readRDS(file = "sdm/data/gadm/rds/gadm36_0.rds")
+gadm <- readRDS(file = "data/gadm/rds/gadm36_0.rds")
 
 
 # Are coord within expected range? ----------------------------------------

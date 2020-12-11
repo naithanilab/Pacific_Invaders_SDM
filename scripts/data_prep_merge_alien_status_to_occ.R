@@ -21,24 +21,24 @@ if ( ! grepl(pattern = "PacificInvaders", x = getwd()) )
 
 # Create path for saving output. "~/winhome/temp/" is for RStudio server.
 save_path <- 
-  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "sdm/output/data-clean/temp/"
+  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "output/data-clean/temp/"
 
 
 # Load and/or install packages.
-source("sdm/scripts/helper_functions/load_packages.R")
-source("sdm/scripts/helper_functions/crop_mapview.R")
+source("scripts/helper_functions/load_packages.R")
+source("scripts/helper_functions/crop_mapview.R")
 
 # Read data ---------------------------------------------------------------
 
 # Read cleaned occurrence data
-dt_oc <- readRDS(file = "sdm/output/data-clean/temp/occ_clean_glonaf.rds")
+dt_oc <- readRDS(file = "output/data-clean/temp/occ_clean_glonaf.rds")
 # ~ 25 sec
 
-dt_pi <- fread("sdm/output/data-clean/temp/pi_alien.csv")
+dt_pi <- fread("output/data-clean/temp/pi_alien.csv")
 
-glonaf <- readRDS(file = "sdm/data/geoentities_2018-05-09/rds/geoentities_2018-05-09.rds")
-gadm <- readRDS(file = "sdm/data/gadm/rds/gadm36_0.rds")
-load(file = "sdm/data/PacAlienSpp_GBIFBIEN_occurrences_Aug2018.RData"); setDT(gbif_bien_occ)
+glonaf <- readRDS(file = "data/geoentities_2018-05-09/rds/geoentities_2018-05-09.rds")
+gadm <- readRDS(file = "data/gadm/rds/gadm36_0.rds")
+load(file = "data/PacAlienSpp_GBIFBIEN_occurrences_Aug2018.RData"); setDT(gbif_bien_occ)
 
 
 # Some species from the occurrence dataset do not exist in the

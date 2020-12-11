@@ -24,11 +24,11 @@ if ( ! grepl(pattern = "PacificInvaders", x = getwd()) )
 
 # Create path for saving output. "~/winhome/temp/" is for RStudio server.
 save_path <- 
-  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "sdm/output/data-clean/temp/"
+  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "output/data-clean/temp/"
 
 
 # Load and/or install packages.
-source("sdm/scripts/helper_functions/load_packages.R")
+source("scripts/helper_functions/load_packages.R")
 
 
 # Read data ---------------------------------------------------------------
@@ -38,8 +38,8 @@ source("sdm/scripts/helper_functions/load_packages.R")
 dt_pi <- fread("Original_Data/Pacific_Invaders_0707.csv",
                select = c("X", "species", "island", "is_group", "state"))
 
-# Read data containing island names and their GLONAF id-s
-googlenames <- fread("sdm/data/googlenames_gift.csv", 
+# Read data containing island names and their GIFT id-s
+googlenames <- fread("data/googlenames_gift.csv", 
                      select = c("island", "is_group", "state", "ID_Source", "ID_1"))
 # All other ID_ columns in googlenames do not carry useful info.
 # See https://github.com/idiv-biodiversity/PacificInvaders/issues/3
@@ -120,7 +120,7 @@ dt_pi_update[!is.na(ID_1), alien_island := 1L]
 
 # b) state level info -----------------------------------------------------
 
-state_id <- fread("sdm/data/State_ID.csv")
+state_id <- fread("data/State_ID.csv")
 
 # Check state name mismatches with dt_pi_update table
 setdiff(dt_pi_update[, unique(state)], state_id$State) # character(0)

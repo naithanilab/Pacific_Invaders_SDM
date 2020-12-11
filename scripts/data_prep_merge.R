@@ -21,19 +21,19 @@ if ( ! grepl(pattern = "PacificInvaders", x = getwd()) )
 
 # Create path for saving output. "~/winhome/temp/" is for RStudio server.
 save_path <- 
-  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "sdm/output/data-clean/"
+  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "output/data-clean/"
 
 
 # Load and/or install packages.
-source("sdm/scripts/helper_functions/load_packages.R")
+source("scripts/helper_functions/load_packages.R")
 
 # Read data ---------------------------------------------------------------
 
 # Read cleaned occurrence data
-dt_oc <- readRDS(file = "sdm/output/data-clean/temp/occ_clean_glonaf.rds")
+dt_oc <- readRDS(file = "output/data-clean/temp/occ_clean_gift.rds")
 # ~ 25 sec
 
-dt_pi <- fread("sdm/output/data-clean/temp/pi_alien.csv")
+dt_pi <- fread("output/data-clean/temp/pi_alien.csv")
 
 
 # Get unique combinations of species and geoentity id
@@ -83,4 +83,4 @@ nrow(dt_oc)
 # 10280701
 
 # Save as binary rds object.
-saveRDS(object = dt_oc, file = paste0(save_path, "occ_clean_glonaf.rds"))
+saveRDS(object = dt_oc, file = paste0(save_path, "occurrence_clean_with_alien_status.rds"))

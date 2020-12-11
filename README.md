@@ -28,12 +28,14 @@ http://www.hear.org/pier/
 
 # Scripts
 
-In the scripts folder, order matters:
+In the scripts folder, order matters.
+
+![](log/workflow.png)
 
 - *data_prep_gadm_to_binary.R* transforms the GADM shapefile gadm36_0.shp to binary format (for faster reading when needed). 
   - Input: "gadm36_0.shp" (file from https://gadm.org/, version 3.6, 2018-12-19);
   - Output: "gadm36_0.rds";
-- *data_prep_geoentities_to_binary.R* same as above, but for the GloNAF shapefile from Patrick Weigelt.
+- *data_prep_geoentities_to_binary.R* same as above, but for the GIFT shapefile from Patrick Weigelt.
   - Input: "geoentities.sh" (file from Dylan Craven via DropBox link sent on 2018-11-29. File created by Patrick Weigelt, version 2018-05-09);
   - Output: "geoentities_2018-05-09.rds";
 - *data_prep_clean_alien_status_data.R* creates a cleaner tabular version of alien status information for each unique combination of species and location (state and island id-s). The output table will be used for merging with the cleaned occurrence data in order to assign alien status information to each record.
@@ -56,16 +58,16 @@ In the scripts folder, order matters:
     - "occ_gadm.rds", file generated with *data_prep_intersect_gadm.R* above;
     - "botanical_gardens_buffers.rds", file generated with *data_prep_make_botanical_garden_buffers.R* above;
   - Output: "occ_clean.rds";
-- *data_prep_intersect_glonaf.R* intersects cleaned occurrence data with GloNAF shapefile to retreive geoentity ID-s for each record.
+- *data_prep_intersect_gift.R* intersects cleaned occurrence data with GIFT shapefile to retreive geoentity ID-s for each record.
   - Input:
     - "occ_clean.rds", file produced with *data_prep_clean_occ.R* above;
     - "geoentities_2018-05-09.rds", file produced with *data_prep_geoentities_to_binary.R* above;
-  - Output: "occ_clean_glonaf.rds";
+  - Output: "occ_clean_gift.rds";
 - *data_prep_merge.R* merges cleaned occurrence data with alien status information.
   - Input:
-    - "occ_clean_glonaf.rds", file produced with *data_prep_intersect_glonaf.R* above;
+    - "occ_clean_gift.rds", file produced with *data_prep_intersect_gift.R* above;
     - "pi_alien.csv", file produced with *data_prep_clean_alien_status_data.R* above;
-  - Output: "occ_clean_glonaf.rds";
+  - Output: "occurrence_clean_with_alien_status.rds";
   
 **Other helper scripts that are now obsolete**
 

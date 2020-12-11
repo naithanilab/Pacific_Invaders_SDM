@@ -36,13 +36,13 @@ See https://github.com/idiv-biodiversity/PacificInvaders/issues/9
 
 $\Box$ I have done a fair amount of data cleaning, however, I am a bit surprised by this situation: 
 
-- step 1 - I intersected the cleaned occurrences with GLONAF shapefile and got the "geoentity" ID-s of the smallest intersected polygons for each occurrence (some fall offshore);
+- step 1 - I intersected the cleaned occurrences with GIFT shapefile and got the "geoentity" ID-s of the smallest intersected polygons for each occurrence (some fall offshore);
 - step 2 - I cleaned and merged `googlenames_gift.csv` with `Pacific_Invaders_0707.csv` in order to have combinations of species names and "geoentity" ID-s (island level);
 - step 3 - I merged the occurrence data from step 1 with the one from step 2 based on species names and "geoentity" ID-s;
 
 So, all these steps should bring alien status info for each occurrence. Of course, we should not expect that all occurrences get solved, but only ~11 thousands out of ~10 mil  occurrences get actually a confirmation for alien status. That seems a very low number to me and I need to brainstorm ideas about what might have be the issue.
 
-$\Box$ Need to check why many GLONAF ID-s are not shared. Especially those that are in Pacific Invaders cleaned file but not in the occurrence dataset.
+$\Box$ Need to check why many GIFT ID-s are not shared. Especially those that are in Pacific Invaders cleaned file but not in the occurrence dataset.
 
 Need to check why some ID-s are in the Pacific Invaders but not in occurence dataset. Might it be that there are no points in those polygons? I tink I can only check visually
 
@@ -61,7 +61,7 @@ $\boxed{\checkmark}$ I still need to understand how to integrate the state id fi
 
 ## 2019-01-31 - alien status
 
-$\boxed{\checkmark}$ The alien status info needs to be prepared. For that reason, I created the script `data_prep_clean_alien_status_data.R` This produces a clean alien status that should be used next in merging with the dt_oc that was intersected with the GLONAF shapefile. Also the script `data_prep_merge_alien_status_to_occ.R` should be renamed to `data_prep_intersect_glonaf.R` and keep there only the intersection. The merging should be done then in a 3rd script maybe called exactly `data_prep_merge_alien_status_to_occ.R` (this script will be short actually).
+$\boxed{\checkmark}$ The alien status info needs to be prepared. For that reason, I created the script `data_prep_clean_alien_status_data.R` This produces a clean alien status that should be used next in merging with the dt_oc that was intersected with the GIFT shapefile. Also the script `data_prep_merge_alien_status_to_occ.R` should be renamed to `data_prep_intersect_gift.R` and keep there only the intersection. The merging should be done then in a 3rd script maybe called exactly `data_prep_merge_alien_status_to_occ.R` (this script will be short actually).
 
 ## 2019-01-29 - alien status
 
@@ -312,11 +312,11 @@ See also suggested general working steps [on GitHub](https://github.com/idiv-bio
 
 ## Pacific_Invaders_0707.csv
 
-According to Mike, merge this file using column `island` with the file `googlenames_gift.csv`. And then use the column `ID_1` for matching with Patrick's shapefile `geoentities_2018-05-09` (GLONAF).
+According to Mike, merge this file using column `island` with the file `googlenames_gift.csv`. And then use the column `ID_1` for matching with Patrick's shapefile `geoentities_2018-05-09` (GIFT).
 
 I noticed that in the file `Pacific_Invaders_0707.csv` there is a column called `id`, which seems to match the `entt_ID` from Patrick's shapefile `geoentities_2018-05-09`. This column is however incomplete according to Mike, so do not use it.
 
-Also, even if it sounds counterintuitive, do not use the column `invasive` from `Pacific_Invaders_0707.csv`. Actually ALL records in this file are "exotic". So, any raw from the occurence data that cannot be match with this file, gets an `NA`. Anything that can be matched by species names and GLONAF ID, is "alien/exotic/invasive".
+Also, even if it sounds counterintuitive, do not use the column `invasive` from `Pacific_Invaders_0707.csv`. Actually ALL records in this file are "exotic". So, any raw from the occurence data that cannot be match with this file, gets an `NA`. Anything that can be matched by species names and GIFT ID, is "alien/exotic/invasive".
 
 
 ```{r}
@@ -351,7 +351,7 @@ googlenames[is.na(ID_1)]
 
 **Fayu** is a small atoll, with no entry in `geoentities_2018-05-09.shp`. However is within `ge_ntty` *Namonuito and Hall Islands* `entt_ID` 355, so could be assigned to it.
 
-**Malakal** has no entry in `geoentities_2018-05-09.shp`, but could be assigned to `ge_ntty` *Koror*, `entt_ID` 1664 (note that there is another *Koror*, *11682*, but a bit bigger). Malakal Island is also "Ngemelachel" in Palauan, but didn't find any "Ngemelachel" entry in GLONAF.
+**Malakal** has no entry in `geoentities_2018-05-09.shp`, but could be assigned to `ge_ntty` *Koror*, `entt_ID` 1664 (note that there is another *Koror*, *11682*, but a bit bigger). Malakal Island is also "Ngemelachel" in Palauan, but didn't find any "Ngemelachel" entry in GIFT.
 
 **Ngidech** - No idea ... Google sugested "Nadech island, Palau". Should I associate it with `ge_ntty` Palau, `entt_ID` 371?
 
