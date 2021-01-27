@@ -131,7 +131,8 @@ Kept this for back reference if ever needed.
     - "occ_clean_gift.rds", file produced with *data_prep_intersect_gift.R* above;
     - "Pacific_Invaders_GIFT_22_01.csv" file from Michael Wohlwend. It contains combinations of species x GIFT ids and their corresponding native/cultivation status info;
   - Output: "occurrence_clean_with_alien_status.rds";
-  
+- *LCVP_bash.R* Script used by Michael Wohlwend to generate data about native/cultivation status info.
+
 **Other helper scripts that are now obsolete**
 
 - *data_prep_check_state_id.R* This script is obsolete now. The corrections were already manually implemented in the data.
