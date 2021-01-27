@@ -24,19 +24,10 @@
 
 # Prepare working environment ---------------------------------------------
 
-# Clean environment, including hidden objects (which begin with a .) & release
-# RAM to the Operating System if applicable.
 rm(list = ls(all.names = TRUE)); gc()
 
-# When working on the RStudio server, switches to the "I" drive path. Note that,
-# when running the RStudio proj file from "I" drive directly, the following line
-# do not alter the working directory path.
-if ( ! grepl(pattern = "PacificInvaders", x = getwd()) )
-  setwd("/data/sie-group-share/10_data_VS/0_proj_share/PacificInvaders")
-
-# Create path for saving output. "~/winhome/temp/" is for RStudio server.
-save_path <- 
-  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "output/data-clean/temp/"
+# Create path for saving output.
+save_path <- "output/data-clean/temp/"
 # Create also the temp directory.
 if (! dir.exists(file.path(save_path))) dir.create(file.path(save_path))
 
@@ -168,3 +159,6 @@ saveRDS(object = gbif_bien_occ, file = paste0(save_path, "occ_gadm.rds"))
 
 # Save the species list separately as well as it is a bit more convenient.
 saveRDS(object = spp_list, file = paste0(save_path, "spp_list.rds"))
+
+dt_sp <- gbif_bien_occ[, .(spp_binary = unique(spp_binary))]
+write.csv(dt_sp, file = paste0(save_path, "spp_list.csv"), row.names = FALSE)

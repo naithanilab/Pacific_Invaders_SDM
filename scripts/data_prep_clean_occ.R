@@ -14,19 +14,10 @@ start_time <- Sys.time()
 
 # Prepare working environment ---------------------------------------------
 
-# Clean environment, including hidden objects (which begin with a .) & release
-# RAM to the Operating System if applicable.
 rm(list = ls(all.names = TRUE)); gc()
 
-# When working on the RStudio server, switches to the "I" drive path. Note that,
-# when running the RStudio proj file from "I" drive directly, the following line
-# do not alter the working directory path.
-if ( ! grepl(pattern = "PacificInvaders", x = getwd()) )
-  setwd("/data/sie-group-share/10_data_VS/0_proj_share/PacificInvaders")
-
-# Create path for saving output. "~/winhome/temp/" is for RStudio server.
-save_path <- 
-  if (grepl("sie-group-share", getwd())) "~/winhome/temp/" else "output/data-clean/temp/"
+# Create path for saving output.
+save_path <- "output/data-clean/temp/"
 
 
 # Load and/or install packages.
