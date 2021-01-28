@@ -150,6 +150,12 @@ length(unique(dt_oc_melt$entt_ID)) # 1789
 sum(unique(dt_oc_melt$entt_ID) %in% unique(gift_tbl$entt_ID)) # 1789
 sum(unique(gift_tbl$entt_ID) %in% unique(dt_oc_melt$entt_ID)) # 1789
 
+# Select those GIFT IDs that cannot be found in the occurrence table.
+status_tbl_gift <- unique(dt_pi_unq$GIFT)
+gift_not_in_occ <- status_tbl_gift[! status_tbl_gift %in% unique(dt_oc_melt$entt_ID)]
+gift_not_in_occ_dt <- gift_tbl[entt_ID %in% gift_not_in_occ]
+write.csv(gift_not_in_occ_dt, file = "output/data-clean/temp/gift_not_in_occ.csv", row.names = FALSE)
+
 
 # ~ merge -----------------------------------------------------------------
 
