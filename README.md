@@ -28,6 +28,10 @@ http://www.hear.org/pier/
 
 # Data
 
+The main repository with data and output is stored at uni-potsdam [here](https://boxup.uni-potsdam.de/index.php/s/NyDL3mpxNSp7d9W). Thanks to @ChrKoenig for the storage space. 
+
+I recommend to store any data there in the ./data directory. We should try to keep only scripts and needed documentation on GitHub for now.
+
 ## Input data
 
 **Occurrence data**
@@ -84,13 +88,8 @@ The workflow in few major steps:
 - spatially intersect the cleaned occ. data with the GIFT polygons to get GIFT IDs;
 - merge with native/cultivation table from Michael W.
 
-**The workflow is presented in the diagrams below.**
+**The workflow is presented in the diagram below.**
 
-## Workflow used at 12-11-2020 (obsolete)
-
-Kept this for back reference if ever needed.
-
-![](log/workflow_12_11_2020.png)
 
 ## Workflow used at 27-01-2021
 
@@ -134,6 +133,8 @@ Kept this for back reference if ever needed.
 - *LCVP_bash.R* Script used by Michael Wohlwend to generate data about native/cultivation status info.
 
 **Other helper scripts that are now obsolete**
+
+This is rather like a note to myself @valentinitnelav
 
 - *data_prep_check_state_id.R* This script is obsolete now. The corrections were already manually implemented in the data.
 - *data_prep_merge_alien_status_to_occ.R* A first attempt of merging cleaned occurrence data with alien status information and running some extra test.
