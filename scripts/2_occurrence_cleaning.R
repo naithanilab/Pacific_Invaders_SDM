@@ -65,5 +65,5 @@ occ_cleaned = bind_rows(occ_bien_std, occ_gbif_std) %>%
                 (is.na(coordinate_uncertainty) | coordinate_uncertainty < 10000)) %>% #  coordinate precision < 10km 
   arrange(native, coordinate_uncertainty) %>%  # Sort before distinct() to keep the most informative records 
   distinct(species, lon, lat, year, country, datasource, .keep_all = T) %>% # Remove duplicate or redundant records
-  clean_coordinates(lon = "lon", lat = "lat", species = "species", countries = "country",
+  clean_coordinates(lon = "lon", lat = "lat", species = "species", countries = "country", # T
                     tests = c("centroids", "capitals", "gbif", "institutions", "outliers"))

@@ -24,7 +24,7 @@ download_species = function(spec_name){
     if(is.null(download_block)){
       return(NULL)
     } else {
-      return(download_block[,colnames(download_block) %in% c("key", "datasetKey", "scientificName", "species", "acceptedTaxonKey", 
+      return(download_block[,colnames(download_block) %in% c("scientificName", "species", "institutionCode", "datasetName",
                                                              "decimalLatitude", "decimalLongitude", "year", "coordinateUncertaintyInMeters", "issues", "geodeticDatum",
                                                              "establishmentMeans", "countryCode", "country")])
     }
