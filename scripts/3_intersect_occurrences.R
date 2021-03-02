@@ -26,7 +26,3 @@ rm(occ_cleaned, occ_cleaned_slim)
 # spatial join of occurrences with gift geoentities
 occ_gift_intersect = st_join(occ_sf, geoentities_slim, st_intersects)
 save(occ_gift_intersect, file = "data/occ_gift_intersect.RData")
-
-########## Assign nativeness status from Micheals table ############
-native_ref = read_delim("data/Pacific_Invaders_GIFT_22_01.csv", delim = ";") %>% filter_all(any_vars(!is.na(.)))
-load("data/occ_gift_intersect.RData")
