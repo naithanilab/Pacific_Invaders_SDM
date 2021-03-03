@@ -1,6 +1,5 @@
 library(tidyverse)
 library(sf)
-library(ggmap)
 
 rm(list = ls())
 setwd("~/ownCloud/Projects/Berlin/10_Pacific_invaders")
