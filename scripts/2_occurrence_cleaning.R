@@ -49,8 +49,7 @@ occ_gbif_std = occ_gbif %>%
          datasource = "institutionCode",
          dataset = "datasetName",
          native = "establishmentMeans",
-         coordinate_uncertainty = "coordinateUncertaintyInMeters",
-         issues = "issues") %>% 
+         coordinate_uncertainty = "coordinateUncertaintyInMeters") %>% 
   mutate(country = countrycode(country, origin = "country.name", destination = "iso3c"))
 
 ########### Clean Data ##############
@@ -60,7 +59,6 @@ occ_cleaned = bind_rows(occ_bien_std, occ_gbif_std) %>%
                 !(lat == lon | lat == 0 | lon == 0), # Coords should not be equal
                 !(year < 1800 | year > 2021), # no unrealistic years
                 (is.na(coordinate_uncertainty) | coordinate_uncertainty < 10000)) %>% #  coordinate precision < 10km 
-  mutate_at(vars(lon, lat), round, 4) %>% 
   arrange(native, coordinate_uncertainty) %>%  # Sort before distinct() to keep the most informative records 
   distinct(species, lon, lat, year, country, datasource, .keep_all = T) %>% # Remove duplicate or redundant records
   clean_coordinates(lon = "lon", lat = "lat", species = "species", countries = "country", # T

@@ -57,15 +57,15 @@ unmatched_new = setdiff(unmatched_old, matched) # Still 205 unmatched
 
 geoentities = st_read("data/geoentities_simple_2019-08-29/geoentities_simple.shp")
 geoentities_unmatched = dplyr::filter(geoentities, entt_ID %in% unmatched_new) 
-# There are still 205 unmatched islands, but this is not unexpected, because
+# There are still 205 unmatched pacific islands, but this is not unexpected, because
 # (1) The original species list only contains non-natives from Hawaii. It's possible that none of them occurs on a given other Pacific island
 # (2) GBIF data are patchy and some islands may be very poorly sampled
 
-# 2. How many island records with matched GIFT ID?
+# 2. How many island occurrence ecords with matched GIFT ID?
 entities_pac = unique(status_pacific$GIFT)
 occ_pac = occ_status %>% 
   filter(entt_ID %in% entities_pac) %>% 
-  distinct(occ_id) # more than 1 Million Pacific island records matched
+  distinct(occ_id) # more than 1 pacific occurrences matched
 
 occ_pac_status = occ_status %>% 
   filter(entt_ID %in% entities_pac & (!is.na(native_orig) | !is.na(native_gift) | !is.na(native_pac))) %>%
