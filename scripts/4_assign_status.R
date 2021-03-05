@@ -1,5 +1,6 @@
 library(tidyverse)
 library(sf)
+library(maps)
 
 rm(list = ls())
 setwd("~/ownCloud/Projects/Berlin/10_Pacific_invaders")
@@ -39,8 +40,8 @@ status_pacific_slim = status_pacific %>%
 status_merged = full_join(status_gift_slim, status_pacific_slim, by = c("entity_ID", "species"))
 
 occ_status = occ_gift_intersect %>% 
-  mutate(lon = sf::st_coordinates(.)[,2],
-         lat = sf::st_coordinates(.)[,1]) %>% 
+  mutate(lon = sf::st_coordinates(.)[,1],
+         lat = sf::st_coordinates(.)[,2]) %>% 
   sf::st_drop_geometry() %>% 
   left_join(status_merged, by = c(entt_ID = "entity_ID", species = "species")) %>% 
   mutate(native_orig = recode(native, "NATIVE" = 1, "N" = 1, "I" = 1, .default = 0),  # Abbreviations unclear, but my guess is N = Native, I = Indigenous
@@ -50,10 +51,43 @@ occ_status = occ_gift_intersect %>%
 save(occ_status, file = "/./import/calc9z/data-zurell/koenig/occ_status.RData")
 
 ########## Check matched dataset ##########
-# 1. Total number of occurrence records with matched GIFT ID
-n_total = 
-  
-# 2. Still so many unmatched entities?
+# Make some plots
+geoentities_plot = geoentities %>% dplyr::filter(entt_ID %in% unique(status_gift$entity_ID))
+map_entities_matched = ggplot(map_data("world"), aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill="lightgray", colour = "lightgray") +
+  geom_sf(data = geoentities_plot, color = "darkblue", fill = "lightblue", size = 0.1, inherit.aes = F) +
+  theme_bw() 
+ggsave(filename = "geoentities_map.png", map_entities_matched, device = "png", width = unit(12, "cm"), height = unit(6, "cm"))
+
+occ_plot = occ_status %>% 
+  filter(!is.na(native_orig) | !is.na(native_gift) | !is.na(native_pac)) %>% 
+  distinct(occ_id, lon, lat)
+
+map_occ_overview = ggplot(occ_plot, aes(x = lon, y = lat)) +
+  geom_hex(bins = 100) +
+  scale_fill_continuous(type = "viridis", trans = "log10") +
+  ggtitle("Occurrences with status information") +
+  coord_fixed() +
+  theme_bw() 
+ggsave(filename = "occ_overview.png", map_occ_overview, device = "png", width = unit(12, "cm"), height = unit(6, "cm"))
+
+# 1. Number of occurrence records with matched GIFT ID
+n_total = occ_status %>%
+  distinct(occ_id) %>% 
+  nrow() # 23495390
+
+n_total_matched = occ_status %>%
+  filter(!is.na(entt_ID)) %>% 
+  distinct(occ_id) %>% 
+  nrow() # 22632147
+
+entities_pac = unique(status_pacific$GIFT)
+n_total_isl = occ_status %>% 
+  filter(entt_ID %in% entities_pac) %>% 
+  distinct(occ_id) %>%  # more than 1M pacific occurrences matched
+  nrow()
+
+# 2. Still so many unmatched islands?
 matched = unique(occ_gift_intersect$entt_ID)
 unmatched_old = read_csv("data/gift_not_in_occ.csv") %>% pull(entt_ID)
 unmatched_new = setdiff(unmatched_old, matched) # Still 205 unmatched
@@ -64,42 +98,32 @@ geoentities_unmatched = dplyr::filter(geoentities, entt_ID %in% unmatched_new)
 # (1) The original species list only contains non-natives from Hawaii. It's possible that none of them occurs on a given other Pacific island
 # (2) GBIF data are patchy and some islands may be very poorly sampled
 
-# 3. How many island occurrence ecords with matched GIFT ID?
-entities_pac = unique(status_pacific$GIFT)
-occ_pac = occ_status %>% 
-  filter(entt_ID %in% entities_pac) %>% 
-  distinct(occ_id) # more than 1 pacific occurrences matched
-
-occ_pac_status = occ_status %>% 
-  filter(entt_ID %in% entities_pac & (!is.na(native_orig) | !is.na(native_gift) | !is.na(native_pac))) %>%
-  distinct(occ_id) # 250k pacific occurrences with status
-
-# 4. How many records have info on nativeness, naturalization, and invasive status?
+# 3. How many records have info on nativeness, naturalization, and invasive status?
 n_native = occ_status %>% 
   filter(!is.na(native_orig) | !is.na(native_gift) | !is.na(native_pac)) %>% 
   distinct(occ_id) %>% 
-  nrow()
+  nrow() # 21098470
 n_native_isl = occ_status %>% 
   filter(entt_ID %in% entities_pac & (!is.na(native_orig) | !is.na(native_gift) | !is.na(native_pac))) %>% 
   distinct(occ_id) %>% 
-  nrow()
+  nrow() # 248339
 
 n_naturalized = occ_status %>% 
   filter(!is.na(naturalized_orig) | !is.na(naturalized_gift) | !is.na(naturalized_pac)) %>% 
   distinct(occ_id) %>% 
-  nrow()
+  nrow() # 19164069
 n_naturalized_isl = occ_status %>% 
   filter(entt_ID %in% entities_pac & (!is.na(naturalized_orig) | !is.na(naturalized_gift) | !is.na(naturalized_pac))) %>% 
   distinct(occ_id) %>% 
-  nrow()
+  nrow() # 224865
 
 n_invasive = occ_status %>% 
   filter(!is.na(invasive_orig) | !is.na(invasive_pac)) %>% 
   distinct(occ_id) %>% 
-  nrow()
+  nrow() # 2065931
 n_invasive_isl = occ_status %>% 
   filter(entt_ID %in% entities_pac & (!is.na(invasive_orig) | !is.na(invasive_pac))) %>% 
   distinct(occ_id) %>% 
-  nrow()
+  nrow() # 141243
 
 ########## Harmonize nativeness status ############
