@@ -50,7 +50,10 @@ occ_status = occ_gift_intersect %>%
 save(occ_status, file = "/./import/calc9z/data-zurell/koenig/occ_status.RData")
 
 ########## Check matched dataset ##########
-# 1. Still so many unmatched entities?
+# 1. Total number of occurrence records with matched GIFT ID
+n_total = 
+  
+# 2. Still so many unmatched entities?
 matched = unique(occ_gift_intersect$entt_ID)
 unmatched_old = read_csv("data/gift_not_in_occ.csv") %>% pull(entt_ID)
 unmatched_new = setdiff(unmatched_old, matched) # Still 205 unmatched
@@ -61,7 +64,7 @@ geoentities_unmatched = dplyr::filter(geoentities, entt_ID %in% unmatched_new)
 # (1) The original species list only contains non-natives from Hawaii. It's possible that none of them occurs on a given other Pacific island
 # (2) GBIF data are patchy and some islands may be very poorly sampled
 
-# 2. How many island occurrence ecords with matched GIFT ID?
+# 3. How many island occurrence ecords with matched GIFT ID?
 entities_pac = unique(status_pacific$GIFT)
 occ_pac = occ_status %>% 
   filter(entt_ID %in% entities_pac) %>% 
@@ -71,7 +74,7 @@ occ_pac_status = occ_status %>%
   filter(entt_ID %in% entities_pac & (!is.na(native_orig) | !is.na(native_gift) | !is.na(native_pac))) %>%
   distinct(occ_id) # 250k pacific occurrences with status
 
-# 3. How many records have info on nativeness, naturalization, and invasive status?
+# 4. How many records have info on nativeness, naturalization, and invasive status?
 n_native = occ_status %>% 
   filter(!is.na(native_orig) | !is.na(native_gift) | !is.na(native_pac)) %>% 
   distinct(occ_id) %>% 
