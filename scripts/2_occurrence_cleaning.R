@@ -2,7 +2,6 @@ library(tidyverse)
 library(CoordinateCleaner)
 library(lubridate)
 library(countrycode)
-library(sqldf)
 
 rm(list = ls())
 setwd("~/ownCloud/Projects/Berlin/10_Pacific_invaders")
@@ -23,17 +22,10 @@ unique(occ_bien$scrubbed_species_binomial)
 spp_freq_bien = occ_bien %>% group_by(scrubbed_species_binomial) %>% tally() # 6.4 M, Less junk data, most species with considerably more records
 
 # Look at fresh GBIF download
-inv_df = read.csv("data/Pacific_Invaders_GIFT_22_01.csv", sep = ";")
-inv_specs = unique(inv_df$Species) 
-inv_specs = inv_specs[!is.na(inv_specs)]
-
-occ_gbif_raw = read.csv.sql(file = "~/Data/0194373-200613084148143.csv", sep = "\t", header = T,
-                            sql = paste0("SELECT species, decimalLongitude, decimalLatiude, country, year, institutionCode, datasetName, establishmentMeans, coordinateUncertaintyInMeters, issues
-                            FROM file"))
-
-# file_names = list.files("data/download_gbif/", ignore.case = F, full.names = T)
-# occ_gbif = map_dfr(file_names, function(file_name){load(file_name); return(occ_df)})
-# spp_freq_gbif = occ_gbif %>% group_by(species) %>% tally() # 
+file_names = list.files("data/download_gbif/", ignore.case = F, full.names = T)
+occ_gbif = map_dfr(file_names, function(file_name){load(file_name); return(occ_df)})
+unique(occ_bien$scrubbed_species_binomial) 
+spp_freq_gbif = occ_gbif %>% group_by(species) %>% tally() # 
 
 ########### Merge Datasets ##############
 occ_bien_std = occ_bien %>% 
