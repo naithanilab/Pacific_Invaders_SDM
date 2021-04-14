@@ -1,7 +1,6 @@
-archive
-data
-literature
-output
 .Rproj.user
 .Rhistory
 README.html
+README.md
+data/
+plots/

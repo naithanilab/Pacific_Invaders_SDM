@@ -6,7 +6,7 @@ rm(list = ls())
 #setwd("~/ownCloud/Projects/Berlin/10_Pacific_invaders")
 setwd("~/PacificInvadersSDM/")
 
-########## Summary & Plotting ##########
+########## Plotting ##########
 load("/./import/calc9z/data-zurell/koenig/occ_status_final.RData")
 load("/./import/calc9z/data-zurell/koenig/occ_cleaned_slim.RData")
 inv_specs= read.csv("data/Pacific_Invaders_GIFT_22_01.csv", sep = ";") %>% 
@@ -17,8 +17,6 @@ occ = occ_cleaned_slim %>%
   dplyr::select(-dataset, -native) %>% 
   left_join(occ_status_final, by = "occ_id") %>% 
   mutate(status = replace_na(status, "unknown"))
-
-table(occ$status) # hmm...so many naturalized? -> GIFT data accurate?
 
 # Plot Overview of occurrence dataset
 world = map_data("world")
@@ -43,23 +41,36 @@ plot_species = function(species_name, status = c("native", "naturalized", "invas
     geom_point(shape = 1, alpha = 1/log10(nrow(df_plot))) +
     scale_color_manual(values = c(native = "#038cfc", "non-native" = "#ffff52", naturalized = "#ffc252", invasive = "#ff5e52", unknown = "black")) +
     ggtitle(species_name) +
-    ylim(-90,90) +
+    ylim(-60,80) +
+    xlim(-180, 180) +
     coord_fixed() +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) +
     theme_bw()
   }
 }
 
+# Look at random species
 plot_species(sample(inv_specs, 1))
 
-# Very strange species:
-plot_species("Raphanus raphanistrum")
-plot_species("Arrhenatherum elatius")
-plot_species("Murraya paniculata")
+# Suspect status information:
+ggsave("plots/status_suspect/RapRap.png", plot_species("Raphanus raphanistrum"), scale = 1.5)
+ggsave("plots/status_suspect/ArrEla.png", plot_species("Arrhenatherum elatius"), scale = 1.5)
+ggsave("plots/status_suspect/MurPan.png", plot_species("Murraya paniculata"), scale = 1.5)
+ggsave("plots/status_suspect/MatInc.png", plot_species("Matthiola incana"), scale = 1.5)
 
-# Good species
-plot_species("Rivina humilis")
-plot_species("Opuntia ficus-indica")
-plot_species("Hypochaeris glabra")
-plot_species("Stachytarpheta jamaicensis")
-plot_species("Iris domestica")
+# Plausible status information
+ggsave("plots/status_plausible/RivHum.png", plot_species("Rivina humilis"), scale = 1.5)
+ggsave("plots/status_plausible/OpuFic.png", plot_species("Opuntia ficus-indica"), scale = 1.5)
+ggsave("plots/status_plausible/HypGla.png", plot_species("Hypochaeris glabra"), scale = 1.5)
+ggsave("plots/status_plausible/StaJam.png", plot_species("Stachytarpheta jamaicensis"), scale = 1.5)
+ggsave("plots/status_plausible/IriDom.png", plot_species("Iris domestica"), scale = 1.5)
+ggsave("plots/status_plausible/CecObt.png", plot_species("Cecropia obtusiafolia"), scale = 1.5)
+
+########## Plotting ############
+# 1. Frequency of status assignments
+table(occ$status) # hmm...so many naturalized? -> GIFT data accurate?
+
+# 2. Species with most naturalized occurrences
+freq_nonnative = occ %>% filter(status == "non-native") %>% group_by(species) %>% tally() %>% arrange(desc(n))
+freq_naturalized = occ %>% filter(status == "naturalized") %>% group_by(species) %>% tally() %>% arrange(desc(n))
+
