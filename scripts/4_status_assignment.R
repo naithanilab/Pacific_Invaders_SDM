@@ -3,8 +3,8 @@ library(sf)
 library(maps)
 
 rm(list = ls())
-#setwd("~/ownCloud/Projects/Berlin/10_Pacific_invaders")
-setwd("~/PacificInvadersSDM/")
+setwd("~/ownCloud/Projects/Berlin/10_Pacific_invaders")
+#setwd("~/PacificInvadersSDM/")
 
 ########## Get & prepare data ############
 # # Michael's lookup table
@@ -21,7 +21,8 @@ setwd("~/PacificInvadersSDM/")
 # save(status_gift, file = "data/status_gift.RData")
 
 ########## Append nativeness status ############
-load("/./import/calc9z/data-zurell/koenig/occ_gift_intersect.RData")
+#load("/./import/calc9z/data-zurell/koenig/occ_gift_intersect.RData")
+load("data/occ_gift_intersect.RData")
 load("data/status_gift.RData")
 load("data/status_pacific.RData")
 inv_specs = read.csv("data/Pacific_Invaders_GIFT_22_01.csv", sep = ";") %>% 
@@ -60,8 +61,8 @@ status_orig_slim = occ_gift_intersect %>%
   filter(native %in% c("NATIVE", "N", "I", "NATURALISED", "INVSIVE", "MANAGED")) %>% 
   mutate(invasive = recode(native, "INVASIVE" = 1, "MANAGED" = 1),
          naturalized = recode(native, "NATURALISED" = 1, "INVASIVE" = 1, "MANAGED" = 1),
-         native= recode(native, "NATIVE" = 1, "N" = 1, "I" = 1), # Abbreviations unclear, but my guess is N = Native, I = Indigenous) 
-         source = datasource) %>% 
+         native= recode(native, "NATIVE" = 1, "N" = 1, "Ne" = 1, "P" = 1, "A" = 0, "I" = 0, "Ie" = 0), # Exact meaning of BIEN abbreviations unclear, but binary nativeness status can be inferred by is_introduced column in bien data 
+         source = datasource) %>%
   select(occ_id, native, naturalized, invasive, source) %>% 
   distinct()
 

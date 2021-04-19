@@ -24,7 +24,7 @@ spp_freq_bien = occ_bien %>% group_by(scrubbed_species_binomial) %>% tally() # 6
 # Look at fresh GBIF download
 file_names = list.files("data/download_gbif/", ignore.case = F, full.names = T)
 occ_gbif = map_dfr(file_names, function(file_name){load(file_name); return(occ_df)})
-unique(occ_bien$scrubbed_species_binomial) 
+unique(occ_gbif$scrubbed_species_binomial) 
 spp_freq_gbif = occ_gbif %>% group_by(species) %>% tally() # 
 
 ########### Merge Datasets ##############
