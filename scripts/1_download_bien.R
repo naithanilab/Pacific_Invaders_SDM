@@ -22,11 +22,24 @@ download_species = function(spec_name){
 cl = makeCluster(8)
 registerDoParallel(cl)
 
-inv_df = read.csv("data/Pacific_Invaders_GIFT_22_01.csv", sep = ";")
-inv_specs = unique(inv_df$Species) 
-inv_specs = inv_specs[!is.na(inv_specs)]
+usda_weeds = read_csv("data/USDA_Hawaii_noxious_weeds.csv") %>% # Where are those species in Michael's list??
+  pull("Scientific Name") %>% 
+  taxize::gbif_parse() %>% 
+  dplyr::filter(type == "SCIENTIFIC", !is.na(rankmarker)) %>% 
+  mutate(Species = paste(genusorabove, specificepithet)) %>% 
+  dplyr::select(Species) %>% 
+  distinct() %>% 
+  drop_na() %>% 
+  pull(Species)
+
+inv_specs = read.csv("data/Pacific_Invaders_GIFT_22_01.csv", sep = ";", dec = ".") %>% 
+  dplyr::select(Species) %>% 
+  distinct() %>% 
+  drop_na() %>% 
+  pull(Species)
+
 inv_specs_dl = list.files("data/download_bien/") %>% str_remove(".RData") %>% str_replace("_", " ")
-inv_specs_final = setdiff(inv_specs, inv_specs_dl)
+inv_specs_final = setdiff(c(inv_specs, usda_weeds), inv_specs_dl)
 foreach(spec_name = inv_specs_final, .packages = c("tidyverse", "BIEN")) %dopar% {
   download_successful = F
   iter = 0

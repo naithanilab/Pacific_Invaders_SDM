@@ -28,7 +28,7 @@ plot_occ_overview = function(){
 
 plot_status = function(species = NA, 
                        bbox = c(-180, -60, 180, 80), 
-                       status = c("native", "naturalized", "invasive", "non-native"),
+                       status = c("native", "naturalized", "invasive", "non-native", "unknown"),
                        alpha = NA,
                        title = NA){
   check_objects()

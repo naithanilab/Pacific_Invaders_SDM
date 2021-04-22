@@ -9,9 +9,9 @@ source("scripts/utils.R")
 ########## Load data ##########
 # load("data/occ_status_final.RData") #load("/./import/calc9z/data-zurell/koenig/occ_status_final.RData")
 # load("data/occ_cleaned_slim.RData") #load("/./import/calc9z/data-zurell/koenig/occ_cleaned_slim.RData")
-# occ = occ_cleaned_slim %>% 
-#   dplyr::select(-dataset, -native) %>% 
-#   left_join(occ_status_final, by = "occ_id") %>% 
+# occ = occ_cleaned_slim %>%
+#   dplyr::select(-dataset, -native) %>%
+#   left_join(occ_status_final, by = "occ_id") %>%
 #   mutate(status = replace_na(status, "unknown"))
 # rm(occ_status_final, occ_cleaned_slim)
 # save(occ, file = "data/occ.RData")
@@ -85,16 +85,16 @@ usda_weeds = read_csv("data/USDA_Hawaii_noxious_weeds.csv") %>% # Where are thos
   taxize::gbif_parse() %>% 
   select(species = canonicalname)
 
-plot_status("Verbascum thapsus", bbox = c(-161, 18.5,-154,22.5), alpha = 1)
+plot_status("Verbascum thapsus", bbox = c(-161, 18.5,-154,22.5), alpha = 1) # Great!
 plot_status("Cytisus scoparius", bbox = c(-161, 18.5,-154,22.5), alpha = 1) # no occs
-plot_status("Bocconia frutescens", bbox = c(-161, 18.5,-154,22.5), alpha = 1)
-plot_status("Prosopis juliflora", bbox = c(-161, 18.5,-154,22.5), alpha = 1) # Implausible!
+plot_status("Bocconia frutescens", bbox = c(-161, 18.5,-154,22.5), alpha = 1) 
+plot_status("Prosopis juliflora", bbox = c(-161, 18.5,-154,22.5), alpha = 1)
 plot_status("Coccinia grandis", bbox = c(-161, 18.5,-154,22.5), alpha = 1)
 plot_status("Morella faya", bbox = c(-161, 18.5,-154,22.5), alpha = 1)
 plot_status("Andropogon virginicus", bbox = c(-161, 18.5,-154,22.5), alpha = 1)
 
-AndVir = filter(occ_pac, species == "Andropogon virginicus" & lat >19 & lat < 20 & lon > -156 & lon < -154) # --> GBIF status incorrect
-CocGra = filter(occ_pac, species == "Coccinia grandis" & lat >19 & lat < 22 & lon > -160 & lon < -154) # --> GBIF status incorrect
+AndVir = filter(occ, species == "Andropogon virginicus" & lat >19 & lat < 20 & lon > -156 & lon < -154) 
+CocGra = filter(occ, species == "Coccinia grandis" & lat >19 & lat < 22 & lon > -160 & lon < -154)
 
 ### Make summary table for final species selection
 decision_table = occ_summary_global %>% 
