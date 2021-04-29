@@ -47,8 +47,8 @@ plot_status = function(species = NA,
   if(nrow(df_plot) == 0){return("No matching occurrences")}
   if(is.na(alpha)){alpha = 1/log10(nrow(df_plot))}
  
-  ggplot(df_plot, aes(x = lon, y = lat, color = status)) +
-    geom_map(data = world, map = world, aes(map_id = region), fill = "grey80", color = "grey80", inherit.aes = F) +
+  ggplot(df_plot, aes(x = lon, y = lat, color = status, text = paste("status source:", status_source))) +
+    #geom_map(data = world, map = world, aes(map_id = region), fill = "grey80", color = "grey80", inherit.aes = F) +
     geom_point(shape = 1, alpha = alpha) +
     scale_color_manual(values = c(native = "#038cfc", "non-native" = "#ffff52", naturalized = "#ffc252", invasive = "#ff5e52", unknown = "black")) +
     ggtitle(title) +
@@ -57,4 +57,32 @@ plot_status = function(species = NA,
     coord_fixed() +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) +
     theme_bw()
+}
+
+reclassify_species = function(occs){
+  occs_status = occs %>% 
+    filter(status != "unknown") %>% 
+    mutate(native = factor(ifelse(status == "native", "native", "non_native")))
+  
+  knn_model = nearest_neighbor() %>% 
+    set_engine("kknn") %>% 
+    set_mode("classification") %>% 
+    translate()
+  
+  knn_fit = knn_model %>% 
+    fit(native ~ lon + lat, data = occs_status)
+  
+  occs_pred = knn_fit %>% 
+    predict(dplyr::select(occs, lon, lat), type = "prob") %>% 
+    rename_with(str_replace, pattern = "[.]pred", replacement = "p")
+  
+  result = tibble(occs_pred, dplyr::select(occs, lon, lat))
+  # ggplot(filter(result, p_native > 0.95), aes(x = lon, y = lat)) + 
+  #   geom_map(data = world, map = world, aes(map_id = region), fill = "grey80", color = "grey80", inherit.aes = F) +
+  #   coord_fixed() +
+  #   geom_point(shape = 1, color = "#038cfc") +
+  #   ggtitle(occs$species[1]) +
+  #   xlim(-180, 180) +
+  #   ylim(-60, 80) +
+  #   theme_bw()
 }

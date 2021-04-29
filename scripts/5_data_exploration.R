@@ -24,7 +24,7 @@ inv_specs = read.csv("data/Pacific_Invaders_GIFT_22_01.csv", sep = ";") %>% pull
 
 ########## Explore global patterns ##########
 # Frequency of status assignments
-table(occ$status) # hmm...so many naturalized? -> GIFT data accurate?
+table(occ$status) # hmm...so many naturalized? -> Data accurate?
 
 # Species with most naturalized occurrences
 occ_summary_global = occ %>% group_by(species, status) %>% tally(name = "n_global")
@@ -97,16 +97,37 @@ AndVir = filter(occ, species == "Andropogon virginicus" & lat >19 & lat < 20 & l
 CocGra = filter(occ, species == "Coccinia grandis" & lat >19 & lat < 22 & lon > -160 & lon < -154)
 
 ### Make summary table for final species selection
-decision_table = occ_summary_global %>% 
+summary_table = occ_summary_global %>% 
   left_join(occ_summary_pac, by = c("species", "status")) %>% 
   left_join(occ_summary_hawaii, by = c("species", "status")) %>% 
   pivot_longer(cols = starts_with("n_"), names_to = "region", names_prefix = "n_", values_to = "n") %>% 
   replace_na(list(n = 0)) %>% 
   pivot_wider(id_cols = c(species, region), names_from = status, values_from = n, values_fill = 0) %>% 
-  mutate(usda_weed = species %in% usda_weeds$species)
+  rowwise() %>% 
+  mutate(usda_weed = species %in% usda_weeds$species,
+         native_ratio = log10(native / sum(`non-native`, `naturalized`, `invasive`)))
 
-ranking = decision_table %>% 
-  filter(region == "hawaii") %>% 
-  mutate(total_non_native = `non-native` + naturalized + invasive) %>% 
-  arrange(desc(usda_weed), desc(total_non_native))
-  
+save(summary_table, file = "data/summary_table.RData")
+
+### Make preliminary species selection based on summary table
+ranking_table = summary_table %>% 
+  rowwise() %>% 
+  filter(!(region == "hawaii" & sum(invasive:unknown) < 20) &
+           !(region == "global" & native < 200)) %>% 
+  group_by(species) %>% 
+  filter(n() == 3 & region == "global") %>%  # Those are species that met any of the above conditions
+  arrange(native_ratio)
+save(ranking_table , file = "data/ranking_table.RData")
+
+# plot top 10 ranked species
+spec = ranking_table$species
+plot_status(specs[1]) # African center of distribution well reflected
+plot_status(specs[2]) # Should be native to India/Sri Lanka/Bangladesh, native occs in C-America are erroneous
+plot_status(specs[3]) # African center of distribution, erroneous naturalized occs in Kenya/Ethiopia
+plot_status(specs[4]) # African center of distribution well reflected
+plot_status(specs[5]) # Australian distribution well reflected, but some erroneous native occs in Yucatan
+plot_status(specs[6]) # Cocos nucifera - maybe skip this?
+plot_status(specs[7]) # Central American distribution well reflected, erroneous occs in Cyprus
+plot_status(specs[8]) # Native distribution in Australia and Oceania ok
+plot_status(specs[9]) # Very nicely separated with correct native distribution
+plot_status(specs[10]) # Some (probably erroneous non-native occs in C-America)
