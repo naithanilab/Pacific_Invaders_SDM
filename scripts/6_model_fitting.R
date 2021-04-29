@@ -13,9 +13,10 @@
 
 library(tidyverse)
 library(tidymodels)
-library(ranger)
-library(xgboost)
-library(stacks)
+library(ranger)    # Random forest engine
+library(xgboost)   # BRT engine
+library(earth)     # MARS engine
+library(stacks)    # Ensembles
 
 library(raster)
 library(spThin)
@@ -119,6 +120,25 @@ foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboos
                           metrics = metric_set(roc_auc),
                           control = control_grid(save_pred = T, save_workflow = T))
   
+  ### MARS ####
+  gc()
+  mars_spec = mars(mode = "classification",
+                   num_terms = tune(),                               # Number of retained features in the final model
+                   prod_degree = tune()) %>%                         # Degree of interaction among features (1: purely additive, 2: two-way interaction, ...)
+  set_engine("earth")
+  
+  mars_workflow = sdm_workflow %>% add_model(mars_spec)
+  
+  mars_fit = tune_grid(mars_workflow,
+                       cv_folds,
+                       grid = grid_latin_hypercube(
+                         finalize(num_terms(), data_train),
+                         prod_degree(),
+                         size = 20
+                       ),
+                       metrics = metric_set(roc_auc),                  # Calculate AUC only
+                       control = control_grid(save_pred = T, save_workflow = T))  # Save predictions for ensemble modeling
+  
   ### Random Forest ####
   gc()
   rf_spec = rand_forest(mode = "classification", 
@@ -135,7 +155,7 @@ foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboos
                        trees(),
                        finalize(mtry(), data_train),                 # Range of values depends on the dataset, thus use finalize()
                        min_n(),                                      
-                       size = 5                                     
+                       size = 50                                     
                      ),
                      metrics = metric_set(roc_auc),                  # Calculate AUC only
                      control = control_grid(save_pred = T, save_workflow = T))  # Save predictions for ensemble modeling
@@ -159,7 +179,7 @@ foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboos
                         sample_size = sample_prop(),                 # Bag fraction
                         finalize(mtry(), data_train),                # Range of values depends on the dataset, thus use finalize()
                         learn_rate(),
-                        size = 5
+                        size = 50
                       ),
                       metrics = metric_set(roc_auc),                 # Calculate AUC only
                       control = control_grid(save_pred = T, save_workflow = T)) # Save predictions for ensemble modeling
@@ -168,6 +188,7 @@ foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboos
   ## Stack models, save results ####
   model_stack = stacks() %>%           # Stack model predictions
     add_candidates(glm_fit) %>% 
+    add_candidates(mars_fit) %>% 
     add_candidates(rf_fit) %>% 
     add_candidates(brt_fit)
   
