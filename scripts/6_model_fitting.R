@@ -1,9 +1,3 @@
-# Status check (test for different stati on same continent / TDWG region, Compare occs with Range maps from BIEN/GIFT)
-# pseudoabsences (buffer 200 km, inverse distance method, see Damaris Turorial)
-# multicollinearity
-# modeling (3-4 models, GAM, GML, RF, BRT)
-# ensemble ()
-# 
 # resources: 
 #   https://github.com/damariszurell/SSDM-JSDM
 #   https://damariszurell.github.io/EEC-SDM/5_pseudoabsence.html
@@ -79,10 +73,7 @@ foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboos
   data_prep = bind_cols(coords_final, env_vars) %>% 
     mutate(present = as_factor(present)) %>% 
     drop_na()
-  
-  data_prep = bind_cols(as_tibble(abs_naive), env_vars) %>% 
-    mutate(present = as_factor("0"), species = "Bosios") %>% 
-    drop_na()
+
   # -------------------------------------------------- #
   #                    Modeling                     ####
   # -------------------------------------------------- #
