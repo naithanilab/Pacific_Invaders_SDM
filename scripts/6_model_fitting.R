@@ -1,17 +1,7 @@
-# Status check (test for different stati on same continent / TDWG region, Compare occs with Range maps from BIEN/GIFT)
-# pseudoabsences (buffer 200 km, inverse distance method, see Damaris Turorial)
-# multicollinearity
-# modeling (3-4 models, GAM, GML, RF, BRT)
-# ensemble ()
-# 
-# resources: 
-#   https://github.com/damariszurell/SSDM-JSDM
-#   https://damariszurell.github.io/EEC-SDM/5_pseudoabsence.html
-#   https://rspatial.org/raster/sdm/6_sdm_methods.html#random-forest
-#   Zurell et al (2020) JBi
-#   Barbet-Massin et al. (2012) EcoMod
-
 library(tidyverse)
+library(parallel)
+library(doParallel)
+
 library(tidymodels)
 library(ranger)    # Random forest engine
 library(xgboost)   # BRT engine
@@ -21,20 +11,21 @@ library(stacks)    # Ensembles
 library(raster)
 library(spThin)
 library(dismo)
+library(spatialsample)
 
 rm(list = ls())
-setwd("~/ownCloud/Projects/Berlin/10_Pacific_invaders")
+setwd("~/PacificInvadersSDM/")
 
-load("data/occ.RData")
+load("//import/calc9z/data-zurell/koenig/occ.RData")
 load("data/ranking_table.RData")
-load("~/Data/world_mask.RData")
-bioclim = stack(list.files("~/Data/CHELSA_bioclim/", pattern = ".tif", full.names = T))
+load("data/world_mask.RData")
+bioclim = raster::stack(str_sort(list.files("//import/calc9z/data-zurell/data/env/global/bioclim/", pattern = "2.5m", full.names = T), numeric = T))
 
-cl = makeCluster(50)
+cl = makeCluster(5)
 registerDoParallel(cl)
-specs = unique(ranking_table$species)
+specs = unique(ranking_table$species)[1:5]
 
-foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboost", "stacks", "raster", "spThin", "dismo")) %dopar% {
+foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboost", "stacks", "raster", "spThin", "dismo", "spatialsample")) %dopar% {
   # -------------------------------------------------- #
   #                  Pre-Processing                 ####
   # -------------------------------------------------- #
@@ -58,36 +49,32 @@ foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboos
   colnames(abs_coords) = c("lon", "lat")
   
   ## Spatial thinning of presences and absences ####
-  occs_thinned = thin(bind_cols(species = spec_tmp, occ_coords), long.col = "lon", lat.col = "lat", thin.par = 5, spec.col = "species", reps = 10, write.files=F, locs.thinned.list.return=T)
+  occs_thinned = thin(bind_cols(species = spec, occ_coords), long.col = "lon", lat.col = "lat", thin.par = 5, spec.col = "species", reps = 10, write.files=F, locs.thinned.list.return=T)
   occs_thinned = occs_thinned[[which.max(sapply(occs_thinned, nrow))]] 
-  abs_thinned = thin(bind_cols(species = spec_tmp, abs_coords), long.col = "lon", lat.col = "lat", thin.par = 5, spec.col = "species", reps = 10, write.files=F, locs.thinned.list.return=T)
+  abs_thinned = thin(bind_cols(species = spec, abs_coords), long.col = "lon", lat.col = "lat", thin.par = 5, spec.col = "species", reps = 10, write.files=F, locs.thinned.list.return=T)
   abs_thinned = abs_thinned[[which.max(sapply(abs_thinned, nrow))]] 
   
   ## Prepare final dataset ####
   # Merge presence and absence coordinates
-  coords_final = bind_rows(bind_cols(species = spec_tmp, present = 1, occs_thinned),
-                           bind_cols(species = spec_tmp, present = 0, abs_thinned)) %>% 
+  coords_final = bind_rows(bind_cols(species = spec, present = 1, occs_thinned),
+                           bind_cols(species = spec, present = 0, abs_thinned)) %>% 
     as_tibble() %>% 
     rename_all(tolower)
   
   # Extract BioClim variables
   env_vars = extract(bioclim, y = dplyr::select(coords_final, "longitude", "latitude")) %>% 
     as_tibble() %>% 
-    rename_all(str_replace, "CHELSA_bio10", "bio") 
+    rename_all(str_replace, "wc2.1_2.5m_", "") 
   
   # Pre-processed data
   data_prep = bind_cols(coords_final, env_vars) %>% 
     mutate(present = as_factor(present)) %>% 
     drop_na()
   
-  data_prep = bind_cols(as_tibble(abs_naive), env_vars) %>% 
-    mutate(present = as_factor("0"), species = "Bosios") %>% 
-    drop_na()
+  rm(occ, world_mask)
   # -------------------------------------------------- #
   #                    Modeling                     ####
   # -------------------------------------------------- #
-  
-  # ---------------------------------------------------#
   ## Set up data splits, transform variables, etc.  ####
   # Split data 
   data_split = data_prep %>% initial_split(prop = 0.8) 
@@ -98,6 +85,7 @@ foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboos
   # Define general recipe for data transformation
   sdm_recipe = recipe(present ~ ., data = data_train) %>% 
     update_role(species, longitude, latitude, new_role = "ID vars") %>%     # Don't use these  as predictors
+    step_log(num_range("bio_", 12:19), offset = 1) %>% 
     step_normalize(all_predictors()) %>%                                    # Center + rescale predictors
     step_corr(all_predictors(), threshold = 0.7) %>%                        # Remove predictors with r > 0.7
     step_poly(all_predictors(), degree = 2)                                 # Add polynomial terms
@@ -108,8 +96,6 @@ foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboos
   
   # ---------------------------------------------------#
   ## Fit models ####
-  doParallel::registerDoParallel()
-  
   ### GLM ####
   gc()
   glm_spec = logistic_reg(mode = "classification") %>% set_engine("glm")
@@ -196,5 +182,5 @@ foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboos
     blend_predictions() %>%            # calculate weights for ensemble members
     fit_members()                      # re-train members with non-zero weight
   
-  save(ensemble_pred, file = paste0("data/models_fit/", str_replace(spec_tmp, " ", "_"), ".RData"))
+  save(ensemble_pred, file = paste0("//import/calc9z/data-zurell/koenig/ensembles_fit/", str_replace(spec, " ", "_"), ".RData"))
 }

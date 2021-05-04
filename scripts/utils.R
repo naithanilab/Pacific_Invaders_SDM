@@ -48,7 +48,7 @@ plot_status = function(species = NA,
   if(is.na(alpha)){alpha = 1/log10(nrow(df_plot))}
  
   ggplot(df_plot, aes(x = lon, y = lat, color = status, text = paste("status source:", status_source))) +
-    #geom_map(data = world, map = world, aes(map_id = region), fill = "grey80", color = "grey80", inherit.aes = F) +
+    geom_map(data = world, map = world, aes(map_id = region), fill = "grey80", color = "grey80", inherit.aes = F) +
     geom_point(shape = 1, alpha = alpha) +
     scale_color_manual(values = c(native = "#038cfc", "non-native" = "#ffff52", naturalized = "#ffc252", invasive = "#ff5e52", unknown = "black")) +
     ggtitle(title) +

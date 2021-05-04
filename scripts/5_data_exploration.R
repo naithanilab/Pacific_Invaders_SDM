@@ -3,21 +3,17 @@ library(sf)
 library(maps)
 
 rm(list = ls())
-#setwd("~/ownCloud/Projects/Berlin/10_Pacific_invaders") 
 setwd("~/PacificInvadersSDM/")
 source("scripts/utils.R")
 
 ########## Load data ##########
-#load("data/occ_status_final.RData") 
 load("/./import/calc9z/data-zurell/koenig/occ_status_final.RData")
-#load("data/occ_cleaned_slim.RData") 
 load("/./import/calc9z/data-zurell/koenig/occ_cleaned_slim.RData")
 occ = occ_cleaned_slim %>%
   dplyr::select(-dataset, -native) %>%
   left_join(occ_status_final, by = "occ_id") %>%
   mutate(status = replace_na(status, "unknown"))
 rm(occ_status_final, occ_cleaned_slim)
-#save(occ, file = "data/occ.RData")
 save(occ, file = "/./import/calc9z/data-zurell/koenig/occ.RData")
 
 load("/./import/calc9z/data-zurell/koenig/occ.RData")
@@ -126,7 +122,7 @@ save(ranking_table , file = "data/ranking_table.RData")
 
 # plot top 10 ranked species
 spec = ranking_table$species
-plot_status(specs[1]) # African center of distribution well reflected
+plot_status_in(specs[1]) # African center of distribution well reflected
 plot_status(specs[2]) # Should be native to India/Sri Lanka/Bangladesh, native occs in C-America are erroneous
 plot_status(specs[3]) # African center of distribution, erroneous naturalized occs in Kenya/Ethiopia
 plot_status(specs[4]) # African center of distribution well reflected
@@ -136,4 +132,5 @@ plot_status(specs[7]) # Central American distribution well reflected, erroneous 
 plot_status(specs[8]) # Native distribution in Australia and Oceania ok
 plot_status(specs[9]) # Very nicely separated with correct native distribution
 plot_status(specs[10]) # Some (probably erroneous non-native occs in C-America)
+
 
