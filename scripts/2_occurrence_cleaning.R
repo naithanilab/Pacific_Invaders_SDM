@@ -6,7 +6,9 @@ library(countrycode)
 rm(list = ls())
 setwd("~/ownCloud/Projects/Berlin/10_Pacific_invaders")
 
-########### Check data ##############
+# -------------------------------------------------- #
+#                     Check data                  ####
+# -------------------------------------------------- #
 # Look at 2018 download data
 load("~/ownCloud/Pacific_Island_Invaders_SDM/PacificInvadersSDM/data/PacAlienSpp_GBIFBIEN_occurrences_Aug2018.RData")
 table(gbif_bien_occ$occ_Source) # BIEN: 7,979,610 occurrences, GBIF: 27,251,888 occurrences
@@ -27,7 +29,9 @@ occ_gbif = map_dfr(file_names, function(file_name){load(file_name); return(occ_d
 unique(occ_gbif$species) 
 spp_freq_gbif = occ_gbif %>% group_by(species) %>% tally() # 
 
-########### Merge Datasets ##############
+# -------------------------------------------------- #
+#                      Merge datasets             ####
+# -------------------------------------------------- #
 occ_bien_std = occ_bien %>% 
   select(species = "scrubbed_species_binomial",
          lat = "latitude",
@@ -52,7 +56,9 @@ occ_gbif_std = occ_gbif %>%
          coordinate_uncertainty = "coordinateUncertaintyInMeters") %>% 
   mutate(country = countrycode(country, origin = "country.name", destination = "iso3c"))
 
-########### Clean Data ##############
+# -------------------------------------------------- #
+#                   Clean data                    ####
+# -------------------------------------------------- #
 occ_cleaned = bind_rows(occ_bien_std, occ_gbif_std) %>% 
   mutate_at(vars(lon, lat), round, 4) %>%  # round to four digits, (corresponds to a maximum of 11.13m at equator)
   dplyr::filter(!(is.na(lat) | is.na(lon)), # Only records with coords
@@ -61,7 +67,14 @@ occ_cleaned = bind_rows(occ_bien_std, occ_gbif_std) %>%
                 (is.na(coordinate_uncertainty) | coordinate_uncertainty < 10000)) %>% #  coordinate precision < 10km 
   arrange(native, coordinate_uncertainty) %>%  # Sort before distinct() to keep the most informative records 
   distinct(species, lon, lat, year, country, datasource, .keep_all = T) %>% # Remove duplicate or redundant records
-  clean_coordinates(lon = "lon", lat = "lat", species = "species", countries = "country", # T
+  clean_coordinates(lon = "lon", lat = "lat", species = "species", countries = "country", 
                     tests = c("centroids", "capitals", "gbif", "institutions"))
 
-save(occ_cleaned, file = "../10_Pacific_invaders/data/occ_cleaned.RData")
+save(occ_cleaned, file = "//import/calc9z/data-zurell/koenig/occ_cleaned.RData")
+
+occ_cleaned_slim = occ_cleaned %>% 
+  dplyr::filter(.summary == T) %>% # Remove occurrences that were flagged by coordinateCleaner
+  rowid_to_column(var = "occ_id") %>% 
+  dplyr::select(occ_id, species, lon, lat, country, year, datasource, dataset, native)
+
+save(occ_cleaned_slim, file = "//import/calc9z/data-zurell/koenig/occ_cleaned_slim.RData")

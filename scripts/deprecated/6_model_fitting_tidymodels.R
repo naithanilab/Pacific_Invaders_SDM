@@ -17,13 +17,16 @@ rm(list = ls())
 setwd("~/PacificInvadersSDM/")
 
 load("//import/calc9z/data-zurell/koenig/occ.RData")
-load("data/ranking_table.RData")
+load("data/status_pacific.RData")
 load("data/world_mask.RData")
 bioclim = raster::stack(str_sort(list.files("//import/calc9z/data-zurell/data/env/global/bioclim/", pattern = "2.5m", full.names = T), numeric = T))
 
 cl = makeCluster(5)
 registerDoParallel(cl)
-specs = unique(ranking_table$species)[1:5]
+hawaiian_invasives = status_pacific %>% 
+  filter(Islandgroup == "Hawaiian" & inva_stat == "T") %>% 
+  distinct(Species) %>% 
+  pull(Species)
 
 foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboost", "stacks", "raster", "spThin", "dismo", "spatialsample")) %dopar% {
   # -------------------------------------------------- #
@@ -45,6 +48,10 @@ foreach(spec = specs, .packages = c("tidyverse", "tidymodels", "ranger", "xgboos
   idw = geoIDW(as.matrix(occ_coords), as.matrix(abs_naive))
   idw_raster = predict(world_mask_tmp, idw) # Takes a few minutes 
   idw_raster = mask(idw_raster, world_mask_tmp)
+  
+  # Insert cutoff at 5% --> values(idw_r)[values(idw_r) < 0.05] <- 0.05
+  # Use buffer distance instead of IDW (proportional to range size)
+  
   abs_coords =  randomPoints(idw_raster, p = occ_coords, n = nrow(occ_coords), prob=T)
   colnames(abs_coords) = c("lon", "lat")
   
