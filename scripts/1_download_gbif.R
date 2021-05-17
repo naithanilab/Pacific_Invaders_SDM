@@ -6,8 +6,10 @@ library(doParallel)
 
 rm(list = ls())
 setwd("~/ownCloud/Projects/Berlin/10_Pacific_invaders")
-###########################
-# Define download function
+
+# -------------------------------------------------- #
+#              Define download function           ####
+# -------------------------------------------------- #
 download_species = function(spec_name){
   # Prepare download
   gbif_id = taxize::get_gbifid(spec_name, rank = "species", rows = 1, phylum = "Tracheophyta") %>% as.character()
@@ -33,10 +35,9 @@ download_species = function(spec_name){
   return(occ_df)
 }
 
-# Loop over species and download occurrences
-cl = makeCluster(8)
-registerDoParallel(cl)
-
+# -------------------------------------------------- #
+#          Loop over species and download         ####
+# -------------------------------------------------- #
 usda_weeds = read_csv("data/USDA_Hawaii_noxious_weeds.csv") %>% # Where are those species in Michael's list??
   pull("Scientific Name") %>% 
   taxize::gbif_parse() %>% 
@@ -53,8 +54,11 @@ inv_specs = read.csv("data/Pacific_Invaders_GIFT_22_01.csv", sep = ";", dec = ".
   drop_na() %>% 
   pull(Species)
 
-inv_specs_dl = list.files("data/download_gbif/") %>% str_remove(".RData") %>% str_replace("_", " ")
-inv_specs_final = setdiff(c(inv_specs, usda_weeds), inv_specs_dl)
+inv_specs_dl = list.files("data/download_gbif/") %>% str_remove(".RData") %>% str_replace("_", " ") # aleady downloaded species
+inv_specs_final = setdiff(c(inv_specs, usda_weeds), inv_specs_dl)                                   # proceed with remaining species
+
+cl = makeCluster(8)
+registerDoParallel(cl)
 foreach(spec_name = inv_specs_final, .packages = c("tidyverse", "taxize", "rgbif")) %dopar% {
   tryCatch({
     occ_df = download_species(spec_name)
