@@ -21,9 +21,9 @@ load("data/world_mask.RData")
 load("data/summary_table.RData")
 bioclim = raster::stack(str_sort(list.files("//import/calc9z/data-zurell/koenig/chelsa_bioclim/", pattern = ".tif", full.names = T), numeric = T))
 names(bioclim) = str_replace(names(bioclim), pattern = "CHELSA_bio10", "bio")
-specs = summary_table$species[1:10]
+specs = summary_table$species
 
-cl = makeCluster(5)
+cl = makeCluster(10)
 registerDoParallel(cl)
 
 foreach(spec = specs, .packages = c("tidyverse", "wrswoR", "raster", "sf", "mecofun", "dismo", "mgcv", "gbm", "randomForest", "blockCV")) %dopar% {
@@ -88,7 +88,7 @@ foreach(spec = specs, .packages = c("tidyverse", "wrswoR", "raster", "sf", "meco
   data_final_ml = bind_rows(filter(data_final_regr, present == 1), sample_frac(filter(data_final_regr, present == 0), 0.1)) %>%   # data for ML algos, with P/A = 1:1    
     drop_na()
                             
-  rm(world_mask, idw_raster) # free some RAM
+  rm(world_mask) # free some RAM
   # -------------------------------------------------- #
   #                 Model fitting                   ####
   # -------------------------------------------------- #
@@ -108,7 +108,7 @@ foreach(spec = specs, .packages = c("tidyverse", "wrswoR", "raster", "sf", "meco
   
   # Random Forest
   rf_fit = randomForest(x = dplyr::select(data_final_ml, starts_with("bio")),  # TODO repeat 10x
-                        y = as.factor(data_final_ml$present), 
+                        y = data_final_ml$present, 
                         ntree=1000, 
                         nodesize=20)
   

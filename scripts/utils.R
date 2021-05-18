@@ -76,7 +76,7 @@ plot_status = function(occs,
   ggplot(df_plot, aes(x = lon, y = lat, color = status)) +
     geom_map(data = world, map = world, aes(map_id = region), fill = "grey80", color = "grey80", inherit.aes = F) +
     geom_point(shape = 1, alpha = alpha) +
-    scale_color_manual(values = c(native = "#038cfc", "introduced" = "#ffff52", unknown = "black")) +
+    scale_color_manual(values = c(native = "#038cfc", "introduced" = "#ff4040", unknown = "black")) +
     ggtitle(title) +
     xlim(bbox[1], bbox[3]) +
     ylim(bbox[2], bbox[4]) +
@@ -109,7 +109,7 @@ make_preds = function(model, newdata) {
   switch(class(model)[1],
          glm = predict(model, newdata, type='response'),
          gam = predict(model, newdata, type='response'),
-         randomForest = predict(model, newdata, type= 'prob')[,2], 
+         randomForest = predict(model, newdata, type= 'response')[,2], 
          gbm = predict.gbm(model, newdata, n.trees=model$gbm.call$best.trees, type="response"))
 }
 
