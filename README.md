@@ -67,7 +67,7 @@ Model predictions are currently only available for the Hawaiian islands (see bel
 
 The workflow should be expanded to make predictions to different archipelagos and validated against empirical observations, e.g. from the Open Hawaiian Forest Plot database [(OpenNahele)](https://bdj.pensoft.net/article/28406/). Thought should be given to the fact that OpenNahele data may not reflect equilibrium conditions, as invasive species may still be in the process of range expansion on the Hawaiian islands.
 
-### Miscallaneous comments
+### Miscellaneous comments
 
 * The folder `deprecated` contains scripts that are currently not in use or have been superseded by alternative workflows. 
 * The cross-validated predictive performance (measured as True Skill Statistics, i.e. max. sensitivity + max. specificity) is generally much higher for the ML algorithms than for the regression algorithms. This is related to the different number of pseudo-absences in the training and validation datasets. This should be addressed at some point, either by focusing on a different performance metric (e.g. sensitivity) or adjusting the validation datasets.
