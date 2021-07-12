@@ -49,7 +49,7 @@ Occurrences                                 |  Pseudo-absences (10x #occurrences
 
 **Thinning:** Both presences and pseudo-absences are thinned using a faster implementation of the algorithm proposed by [Aiello-Lammens (2015)](#5). Currently, we use a thinning rate of 5000 m.
 
-**Predictor variables:**  For each species, we extract values of 19 [Chelsa](https://chelsa-climate.org/]) bioclimatic variables at the location of all presence and pseudo-absence records. To select a subset of uncorrelated and ecologically informative variables per species, we then calculate the cross-validated explained deviance in 19 univariate GLMs and remove the less informative variable of variable pairs with a correlation > 0.7. The function that performs this variable selection is available the [mecofun](https://gitup.uni-potsdam.de/macroecology/mecofun/blob/master/R/select07_cv.R) package.
+**Predictor variables:**  For each species, we extract values of 19 [Chelsa](https://chelsa-climate.org/]) bioclimatic variables at the location of all presence and pseudo-absence records. To select a subset of uncorrelated and ecologically informative variables per species, we then calculate the cross-validated explained deviance in 19 univariate GLMs and remove the less informative variable of variable pairs with a correlation > 0.7. The function that performs this variable selection is available the [mecofun](https://gitup.uni-potsdam.de/macroecology/mecofun) package.
 
 **Ensembles:** We use an ensemble of four different algorithms to model the environmental niche of the focal species and predict their potential invasive ranges on Pacific islands:
 
