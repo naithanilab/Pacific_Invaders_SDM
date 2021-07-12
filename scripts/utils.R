@@ -50,7 +50,6 @@ get_status_powo = function(spec){
   }
 }
 
-
 plot_status = function(occs, 
                        species = NA, 
                        bbox = c(-180, -60, 180, 80), 

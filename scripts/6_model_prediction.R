@@ -15,10 +15,10 @@ names(bioclim) = str_replace(names(bioclim), pattern = "CHELSA_bio10", "bio")
 bioclim_hawaii = crop(bioclim, extent(c(-161, -154, 18.5, 22.5)))
 bioclim_subset = subset(bioclim_hawaii, grep("bio", colnames(results_list$data$data_reg), value = T))
 
-# -------------------------------------------------- #
-#            Assess model performance             ####
-# -------------------------------------------------- #
-
+# ------------------------------------------ #
+#            Predict to Hawaii            ####
+# ------------------------------------------ #
+# Individual algorithms
 load("//import/calc9z/data-zurell/koenig/ensembles_fit/Psidium_guajava.RData")
 
 plot_status("Psidium guajava", bbox = c(-161, 18.5,-154,22.5), alpha = 1)
@@ -32,5 +32,4 @@ plot(pred_gam); points(filter(occ, species == "Psidium guajava")[c("lon", "lat")
 plot(pred_rf); points(filter(occ, species == "Psidium guajava")[c("lon", "lat")])
 plot(pred_brt); points(filter(occ, species == "Psidium guajava")[c("lon", "lat")])
 
-
-
+# Ensemble predictions

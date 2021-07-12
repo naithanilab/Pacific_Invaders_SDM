@@ -60,21 +60,24 @@ occ_gbif_std = occ_gbif %>%
 #                   Clean data                    ####
 # -------------------------------------------------- #
 occ_cleaned = bind_rows(occ_bien_std, occ_gbif_std) %>% 
-  mutate_at(vars(lon, lat), round, 4) %>%  # round to four digits, (corresponds to a maximum of 11.13m at equator)
-  dplyr::filter(!(is.na(lat) | is.na(lon)), # Only records with coords
-                !(lat == lon | lat == 0 | lon == 0), # Coords should not be equal
-                !(year < 1900 | year > 2021), # no unrealistic years
-                (is.na(coordinate_uncertainty) | coordinate_uncertainty < 10000)) %>% #  coordinate precision < 10km 
-  arrange(native, coordinate_uncertainty) %>%  # Sort before distinct() to keep the most informative records 
-  distinct(species, lon, lat, year, country, datasource, .keep_all = T) %>% # Remove duplicate or redundant records
+  mutate_at(vars(lon, lat), round, 4) %>%             # round to four digits, (corresponds to a maximum of 11.13m at equator)
+  dplyr::filter(!(is.na(lat) | is.na(lon)),           # Only records with coords
+                !(lat == lon | lat == 0 | lon == 0),  # Coords should not be equal
+                !(year < 1900 | year > 2021),         # no unrealistic years
+                (is.na(coordinate_uncertainty) | coordinate_uncertainty < 10000)) %>%  #  coordinate precision < 10km 
+  arrange(native, coordinate_uncertainty) %>%                                # Sort before distinct() to keep the most informative records 
+  distinct(species, lon, lat, year, country, datasource, .keep_all = T) %>%  # Remove duplicate or redundant records
   clean_coordinates(lon = "lon", lat = "lat", species = "species", countries = "country", 
                     tests = c("centroids", "capitals", "gbif", "institutions"))
 
 save(occ_cleaned, file = "//import/calc9z/data-zurell/koenig/occ_cleaned.RData")
 
+# ------------------------------------------------------ #
+#       Final subset and filtering of the dataset     ####
+# ------------------------------------------------------ #
 occ_cleaned_slim = occ_cleaned %>% 
   dplyr::filter(.summary == T) %>% # Remove occurrences that were flagged by coordinateCleaner
-  rowid_to_column(var = "occ_id") %>% 
-  dplyr::select(occ_id, species, lon, lat, country, year, datasource, dataset, native)
+  rowid_to_column(var = "occ_id") %>% # Create unique identifier for each occurrence
+  dplyr::select(occ_id, species, lon, lat, country, year, datasource, dataset, native) # Select only relevant rows
 
 save(occ_cleaned_slim, file = "//import/calc9z/data-zurell/koenig/occ_cleaned_slim.RData")

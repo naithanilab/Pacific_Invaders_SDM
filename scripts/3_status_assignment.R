@@ -73,7 +73,7 @@ setdiff(tdwg_regions, blacklist_regions)
 occ_blacklist_status = occ_blacklist_tdwg %>% 
   st_drop_geometry() %>% 
   left_join(blacklist_status_harmonized, by = c("species", "LEVEL3_NAM" = "tdwg_lvl_3")) %>% 
-  group_by(occ_id) %>% # some occurrences have been matched to 2 tdwg regions 
+  group_by(occ_id) %>%         # some occurrences have been matched to 2 tdwg regions 
   arrange(desc(status)) %>%    # so use only one status (priority: native > introduced > NA)
   slice(1) %>%                 # this operation is somewhat expensive, so be careful with >> 1M records  
   ungroup() %>% 

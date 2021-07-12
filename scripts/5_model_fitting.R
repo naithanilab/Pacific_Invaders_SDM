@@ -36,7 +36,7 @@ foreach(spec = specs, .packages = c("tidyverse", "wrswoR", "raster", "sf", "meco
   occ_df = blacklist_final %>% filter(species == spec, status == "native")
   occ_coords = dplyr::select(occ_df, lon, lat) %>% as.matrix()
   occ_extent = extent(as.vector(apply(occ_coords, 2, range))) * 1.5     # enlarged extent of occurrences
-  world_mask_crop = crop(world_mask, occ_extent) # crop world_mask to enlarged extent, if extent(world_mask) < occ_extent it will just use the world_mask as is
+  world_mask_crop = crop(world_mask, occ_extent)                        # crop world_mask to enlarged extent, if extent(world_mask) < occ_extent it will just use the world_mask as is
   occ_thinned = thin_coordinates(coords = occ_coords, threshold = 5000) # use custom function (from utils.R) that scales better than spThin::thin
   
   ## Create background samples for for IDW fitting ####

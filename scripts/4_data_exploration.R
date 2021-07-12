@@ -6,8 +6,7 @@ rm(list = ls())
 setwd("~/PacificInvadersSDM/")
 source("scripts/utils.R")
 
-load("/./import/calc9z/data-zurell/koenig/blacklist_final.RData")
-pac_mask = st_read("data/pacific/pac_final.shp")
+load("data/blacklist_final.RData")
 geoentities = st_read("data/geoentities_simple_2019-08-29/geoentities_simple.shp")
 
 # -------------------------------------------------- #
@@ -32,7 +31,7 @@ blacklist_overview_maps = ggplot(blacklist_final, aes(x = lon, y = lat)) +
     coord_fixed() +
     theme_bw() 
 
-ggsave(filename = "plots/blacklist_overview.png", blacklist_overview_maps, device = "png", width = unit(12, "cm"), height = unit(6, "cm"))
+ggsave(filename = "plots/blacklist_overview.png", blacklist_overview_maps, device = "png", width = unit(12, "cm"), height = unit(3, "cm"))
 
 # Look at random species
 plot_status(blacklist_final, species = sample(specs, 1))
@@ -48,6 +47,7 @@ ggsave("plots/status_POWO/BarLup.png", plot_status(blacklist_final, "Barleria lu
 # -------------------------------------------------- #
 #            Explore Pacific islands              ####
 # -------------------------------------------------- #
+# pac_mask = st_read("data/pacific/pac_final.shp")
 # blacklist_pac_sf = blacklist_final %>% 
 #   st_as_sf(coords = c("lon", "lat"), crs = 4326) %>%
 #   st_join(pac_mask, left = F)
