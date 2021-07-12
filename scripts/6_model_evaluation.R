@@ -1,6 +1,5 @@
 library(tidyverse)
 library(raster)
-library(mecofun)
 library(dismo)
 library(mgcv)
 library(gbm)
