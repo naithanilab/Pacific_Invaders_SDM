@@ -36,12 +36,16 @@ Some basic plotting and data exploration of the data set at the scale of the ent
 ![](plots/blacklist_overview.png)
 
 Visual checks for plausibility of the assigned status information per species, e.g.:
-<center>![](plots/status_psidium_guajava.png){width=50%}</çenter>
+<center>![](plots/status_psidium_guajava.png){width=50%}</center>
 
 #### 5. Ensemble species distribution modeling
 We made the following decisions in our modeling workflow:
 
-**Pseudo-Absences:** Pseudo-absences are sampled for each species within an enlarged bounding box of available occurrence records (scaling factor: 1.5). We use inverse distance sampling [(Kramer-Schadt et al., 2013)](#3) to minimize the effects of geographical sampling bias and adjust the geographical distribution of pseudo-absences to the sampling effort in the occurrence data. Following [Barbet-Massin et al. (2012)](#4), we used a ratio of presence to pseudo-absences of 1:10 for regression methods (GLM, GAM) and 1:1 for machine learning methods (Random Forest, Generalized Boosted Machine)
+**Pseudo-Absences:** Pseudo-absences are sampled for each species within an enlarged bounding box of available occurrence records (scaling factor: 1.5). We use inverse distance sampling [(Kramer-Schadt et al., 2013)](#3) to minimize the effects of geographical sampling bias and adjust the geographical distribution of pseudo-absences to the sampling effort in the occurrence data. The baseline probability was set to 0.05. Following [Barbet-Massin et al. (2012)](#4), we used a ratio of presence to pseudo-absences of 1:10 for regression methods (GLM, GAM) and 1:1 for machine learning methods (Random Forest, Generalized Boosted Machine). The below figures show occurrences and pseudo-absences (black dots) plotted on top of fitted probability surface for *Sphagneticola trilobata*
+
+Occurrences                                 |  Pseudo-absences (10x #occurrences)
+:------------------------------------------:|:-------------------------:
+![](plots/Sphagneticola_trilobata_OCC.png)  |  ![](plots/Sphagneticola_trilobata_ABS.png)
 
 **Thinning:** Both presences and pseudo-absences are thinned using a faster implementation of the algorithm proposed by [Aiello-Lammens (2015)](#5). Currently, we use a thinning rate of 5000 m.
 
@@ -56,10 +60,12 @@ We made the following decisions in our modeling workflow:
 
 For GBMs, we tune the learning rate such that the number of trees lies between 1000 and 5000. For other model settings, please see the script `5_model_fitting.R`. 
 
-Ensemble predictions are currently derived with equal weights for each algorithm.
-
 #### 6. Predicting invasive range
-Model predictions are currently only available for the Hawaiian islands. The workflow should be expanded to make predictions to different archipelagos and validated against empirical observations, e.g. from the Open Hawaiian Forest Plot database [(OpenNahele)](https://bdj.pensoft.net/article/28406/). Thought should be given to the fact that OpenNahele data may not reflect equilibrium conditions, as invasive species may still be in the process of range expansion on the Hawaiian islands.
+Model predictions are currently only available for the Hawaiian islands (see below) and derived with equal weights for each of the four algorithms.
+
+<center>![](plots/Grevillea_robusta_PredHawaii.png){width=50%}</center>
+
+The workflow should be expanded to make predictions to different archipelagos and validated against empirical observations, e.g. from the Open Hawaiian Forest Plot database [(OpenNahele)](https://bdj.pensoft.net/article/28406/). Thought should be given to the fact that OpenNahele data may not reflect equilibrium conditions, as invasive species may still be in the process of range expansion on the Hawaiian islands.
 
 ### Miscallaneous comments
 

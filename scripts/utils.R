@@ -1,18 +1,24 @@
 library(tidyverse)
 library(sf)
 library(geosphere)
-library(hexbin)
+library(dggridR)
 library(maps)
 library(PresenceAbsence)
 library(rvest)
 library(taxize)
 
 get_status_powo = function(spec){
+  # Function to download the biogeographical status for a given species from http://www.plantsoftheworldonline.org/
+
+  # Prepare species name
   spec_split = str_split(spec, pattern = " ", simplify = T)
   genus = spec_split[1]
   species = spec_split[2]
+  
+  # Retrieve IPNI ids of species
   ipni_ids = ipni_search(genus = genus, species = species) %>% pull(id)
   
+  # Search each IPNI_id on POWO and scrape status information
   distr = lapply(ipni_ids, function(id){
     distr = tryCatch({
       on.exit(closeAllConnections())
@@ -34,11 +40,13 @@ get_status_powo = function(spec){
     })
   })
   
+  # 
   distr_vec = distr[!sapply(distr, is.null)] %>%  unlist()
   distr_vec = distr_vec[!is.na(distr_vec)]
   native = unique(distr_vec[grepl("native", names(unlist(distr_vec)))])
   introduced = unique(distr_vec[grepl("introduced", names(unlist(distr_vec)))])
   
+  # Combine and return reults
   cat(str_glue("{spec} (native: {length(native[!is.na(native)])}, introduced: {length(introduced[!is.na(introduced)])})"), "\n")
   if(!(is.null(native) & is.null(introduced))){
     distr_df = bind_rows(tibble(species = spec, tdwg_lvl_3 = native, status = "native"),
@@ -50,12 +58,19 @@ get_status_powo = function(spec){
   }
 }
 
+<<<<<<< HEAD
 plot_status = function(occs, 
                        species = NA, 
                        bbox = c(-180, -60, 180, 80), 
                        status = c("native", "introduced", "unknown"),
                        alpha = NA,
                        title = NA){
+=======
+
+plot_status = function(occs, species = NA, bbox = c(-180, -60, 180, 80), alpha = NA, title = NA,
+                       status = c("native", "introduced", "unknown")){
+  # Convenience function for plotting the status of a species from the blacklist
+>>>>>>> 8df8020d376cdd8c3e1886c114f4b0c20f242486
 
   if(!is.na(species)){
     df_plot = dplyr::filter(occs, species == !!species & status %in% !!status)
@@ -75,7 +90,7 @@ plot_status = function(occs,
   ggplot(df_plot, aes(x = lon, y = lat, color = status)) +
     geom_map(data = world, map = world, aes(map_id = region), fill = "grey80", color = "grey80", inherit.aes = F) +
     geom_point(shape = 1, alpha = alpha) +
-    scale_color_manual(values = c(native = "#038cfc", "introduced" = "#ffff52", unknown = "black")) +
+    scale_color_manual(values = c(native = "#038cfc", "introduced" = "#ff4040", unknown = "black")) +
     ggtitle(title) +
     xlim(bbox[1], bbox[3]) +
     ylim(bbox[2], bbox[4]) +
@@ -84,8 +99,8 @@ plot_status = function(occs,
     theme_bw()
 }
 
-thin_coordinates = function(coords, threshold){
-  # Function for faster spatial thinning of coordinates
+thin_coordinates_distance = function(coords, threshold = 5000){
+  # Function for reasonably fast spatial thinning (faster than spThin, bit still O(n²)) of coordinates based on pairwise distances between coordinates
   # coords: geographic coordinates in lon/lat format
   # threshold: minimum distance between points in meters
   
@@ -104,24 +119,49 @@ thin_coordinates = function(coords, threshold){
   return(coords[-pts_remove,])
 }
 
-make_preds = function(model, newdata) {
-  switch(class(model)[1],
-         glm = predict(model, newdata, type='response'),
-         gam = predict(model, newdata, type='response'),
-         randomForest = predict(model, newdata, type= 'prob')[,2], 
-         gbm = predict.gbm(model, newdata, n.trees=model$gbm.call$best.trees, type="response"))
+thin_coordinates_sample = function(coords, target_res = 13){
+  # Function for very fast spatial thinning of coordinates based on sampling over hexagonal grid
+  # coords: geographic coordinates in lon/lat format
+  # target_res: target resolution of the grid as defined by dggridR, see https://github.com/r-barnes/dggridR for details
+  
+  hex_grid = dggridR::dgconstruct(res = target_res)
+  hex_ids = dggridR::dgGEO_to_SEQNUM(hex_grid, coords[,"lat"], coords[, "lon"])$seqnum
+  
+  coords_thinned = bind_cols(coords, hex_id = hex_ids) %>% 
+    rowid_to_column("row_id") %>% 
+    group_by(hex_id) %>% 
+    sample_n(1) %>% 
+    ungroup() %>% 
+    arrange(row_id) %>% 
+    dplyr::select(lon, lat) %>% 
+    as.matrix
+  
+  return(coords_thinned)
 }
 
-make_cv_preds = function(model, df_spec, fold_ids) {
+make_preds = function(model, new_data) {
+  # Wrapper for making predictions on new data
+  # Adapted from Zurell (2020) JBi
+  
+  switch(class(model)[1],
+         glm = predict(model, new_data, type='response'),
+         gam = predict(model, new_data, type='response'),
+         randomForest = predict(model, new_data, type= 'response'), 
+         gbm = predict.gbm(model, new_data, n.trees=model$gbm.call$best.trees, type="response"))
+}
+
+make_cv_preds = function(model, spec_data) {
+  # Wrapper for making cross-validated predictions from a fitted model
+  # Adapted from Zurell (2020) JBi
+  
   # Select relevant columns and complete cases
-  df_spec = df_spec %>% 
+  spec_data = spec_data %>% 
     rowid_to_column("row_id") %>% 
-    bind_cols(fold_id = fold_ids) %>% 
     drop_na() %>% 
     mutate(prediction = NA)
   
-  df_fit = df_spec %>% dplyr::select(row_id, present, fold_id, starts_with("bio"))
-  df_pred = df_spec %>% dplyr::select(row_id, fold_id, prediction)
+  df_fit = spec_data %>% dplyr::select(row_id, present, fold_id, starts_with("bio"))
+  df_pred = spec_data %>% dplyr::select(row_id, fold_id, prediction)
   
   # Loop over folds and save predictions
   for(i in seq_len(n_distinct(df_fit$fold_id))){
@@ -147,7 +187,9 @@ make_cv_preds = function(model, df_spec, fold_ids) {
 }  
 
 calc_performance = function(model, df_spec, df_pred, threshold_method = 'MaxSens+Spec'){
-  # Helper functions for True Skill Statistic:
+  # Helper functions for True Skill Statistic
+  # Adapted from Zurell (2020) JBi
+  
   TSS = function(cmx){
     PresenceAbsence::sensitivity(cmx, st.dev=F) + PresenceAbsence::specificity(cmx, st.dev=F) - 1
   }
