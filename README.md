@@ -36,7 +36,7 @@ Some basic plotting and data exploration of the data set at the scale of the ent
 ![](plots/blacklist_overview.png)
 
 Visual checks for plausibility of the assigned status information per species, e.g.:
-<center>![](plots/status_psidium_guajava.png){width=50%}</center>
+<center><img src='plots/Psidium_guajava_status.png' width='50%'></center>
 
 #### 5. Ensemble species distribution modeling
 We made the following decisions in our modeling workflow:
@@ -63,7 +63,7 @@ For GBMs, we tune the learning rate such that the number of trees lies between 1
 #### 6. Predicting invasive range
 Model predictions are currently only available for the Hawaiian islands (see below) and derived with equal weights for each of the four algorithms.
 
-<center>![](plots/Grevillea_robusta_PredHawaii.png){width=50%}</center>
+<center><img src='plots/Grevillea_robusta_PredHawaii.png' width='50%'></center>
 
 The workflow should be expanded to make predictions to different archipelagos and validated against empirical observations, e.g. from the Open Hawaiian Forest Plot database [(OpenNahele)](https://bdj.pensoft.net/article/28406/). Thought should be given to the fact that OpenNahele data may not reflect equilibrium conditions, as invasive species may still be in the process of range expansion on the Hawaiian islands.
 
