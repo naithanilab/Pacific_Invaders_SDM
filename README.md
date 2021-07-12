@@ -5,7 +5,7 @@ A prototype pipeline for modeling the distribution of invasive plant species on 
 ---------------------------------------------------------------
 
 ### Workflow
-We focus on ~2700 plant species with known naturalized populations in the Pacific region ([Wohlwend et al., 2021](#1)). The main repository with data and output is stored at the [University of Potsdam](https://boxup.uni-potsdam.de/index.php/s/NyDL3mpxNSp7d9W). The current workflow is structured into the following steps:
+We focus on ~2700 plant species with known naturalized populations in the Pacific region ([Wohlwend et al., 2021](#1)). The [main repository](https://boxup.uni-potsdam.de/index.php/s/NyDL3mpxNSp7d9W) with data and output is stored at the University of Potsdam. The current workflow is structured into the following steps:
 
 #### 1. Download of occurrence records
 For each species, all available occurrence records from [GBIF](https://www.gbif.org/) and [BIEN]([http://biendata.org/]) are downloaded. The combined dataset (as of April 2021) comprises about 24 million occurrence records. Additions and updates can be made on a per-species basis.

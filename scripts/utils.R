@@ -58,20 +58,13 @@ get_status_powo = function(spec){
   }
 }
 
-<<<<<<< HEAD
+# Convenience function for plotting the status of a species from the blacklist
 plot_status = function(occs, 
                        species = NA, 
                        bbox = c(-180, -60, 180, 80), 
                        status = c("native", "introduced", "unknown"),
                        alpha = NA,
                        title = NA){
-=======
-
-plot_status = function(occs, species = NA, bbox = c(-180, -60, 180, 80), alpha = NA, title = NA,
-                       status = c("native", "introduced", "unknown")){
-  # Convenience function for plotting the status of a species from the blacklist
->>>>>>> 8df8020d376cdd8c3e1886c114f4b0c20f242486
-
   if(!is.na(species)){
     df_plot = dplyr::filter(occs, species == !!species & status %in% !!status)
   } else {
